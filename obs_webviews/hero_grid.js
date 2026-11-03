@@ -3,9 +3,17 @@ import { subscribe } from '../store/core.js';
 import { heroes } from '../store/queries.js';
 
 const HERO_ICON_PATH = `../assets/heroes_images/`;
+const ROLES_ICON_PATH = `../assets/roles_icons/`;
+const ROLES = ['Tank', 'Damage', 'Support'];
+const ROLES_ICONS = {
+  'Damage': 'Role_Damage_Circle.svg',
+  'Support': 'Role_Support_Circle.svg',
+  'Tank': 'Role_Tank_Circle.svg'
+};
 
 const grid = document.getElementById('hero-grid');
-const items = new Map(); // hero name -> .hero-item element, in grid order
+const items = new Map(); // hero name -> .hero-item element
+let builtNames = [];     // hero names in the order the grid was built from
 
 // ========================================================================
 // INITIALIZATION
@@ -37,7 +45,6 @@ async function Init() {
 function RenderHeroGrid() {
   const list = heroes();
 
-  const builtNames = [...items.keys()];
   const sameHeroes = list.length === builtNames.length && list.every((hero, i) => hero.name === builtNames[i]);
   if (!sameHeroes) BuildHeroGrid(list);
 
@@ -52,11 +59,43 @@ function RenderHeroGrid() {
 function BuildHeroGrid(list) {
   grid.textContent = '';
   items.clear();
-  list.forEach((hero) => {
-    const item = CreateHeroItem(hero);
-    items.set(hero.name, item);
-    grid.appendChild(item);
+  builtNames = list.map((hero) => hero.name);
+
+  ROLES.forEach((role) => {
+    const row = document.createElement('section');
+    row.className = 'role-row';
+    row.appendChild(CreateRoleTitle(role));
+
+    const roleHeroes = document.createElement('div');
+    roleHeroes.className = 'role-heroes';
+    list
+      .filter((hero) => hero.role === role)
+      .forEach((hero) => {
+        const item = CreateHeroItem(hero);
+        items.set(hero.name, item);
+        roleHeroes.appendChild(item);
+      });
+
+    row.appendChild(roleHeroes);
+    grid.appendChild(row);
   });
+}
+
+function CreateRoleTitle(role) {
+  const title = document.createElement('div');
+  title.className = 'role-title';
+
+  const icon = document.createElement('img');
+  icon.className = 'role-icon';
+  icon.src = ROLES_ICON_PATH + ROLES_ICONS[role];
+  icon.alt = role;
+
+  const label = document.createElement('span');
+  label.textContent = role;
+
+  title.appendChild(icon);
+  title.appendChild(label);
+  return title;
 }
 
 function CreateHeroItem(hero) {
