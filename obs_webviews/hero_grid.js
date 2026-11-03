@@ -54,6 +54,8 @@ function RenderHeroGrid() {
     item.classList.toggle('blocked', hero.isBlocked);
     item.classList.toggle('completed', hero.isCompleted);
   });
+
+  UpdateRoleCounts();
 }
 
 function BuildHeroGrid(list) {
@@ -81,6 +83,23 @@ function BuildHeroGrid(list) {
   });
 }
 
+// Completed heroes over all non-blocked heroes, per role row.
+function UpdateRoleCounts() {
+  document.querySelectorAll('.role-row').forEach((row) => {
+    const items = row.querySelectorAll('.hero-item');
+    const completed = row.querySelectorAll('.hero-item.completed').length;
+    const available = items.length - row.querySelectorAll('.hero-item.blocked').length;
+    const blocked = row.querySelectorAll('.hero-item.blocked').length;
+    const blockedLabel = row.querySelector('.role-blocked');
+    blockedLabel.textContent = `${blocked} blocked`;
+    blockedLabel.classList.toggle('has-blocked', blocked > 0);
+
+    const count = row.querySelector('.role-count');
+    count.textContent = `${completed}/${available}`;
+    count.classList.toggle('done', available > 0 && completed >= available);
+  });
+}
+
 function CreateRoleTitle(role) {
   const title = document.createElement('div');
   title.className = 'role-title';
@@ -90,11 +109,25 @@ function CreateRoleTitle(role) {
   icon.src = ROLES_ICON_PATH + ROLES_ICONS[role];
   icon.alt = role;
 
+  const heading = document.createElement('div');
+  heading.className = 'role-heading';
+
   const label = document.createElement('span');
+  label.className = 'role-name';
   label.textContent = role;
 
+  const blocked = document.createElement('span');
+  blocked.className = 'role-blocked';
+
+  heading.appendChild(label);
+  heading.appendChild(blocked);
+
   title.appendChild(icon);
-  title.appendChild(label);
+  const count = document.createElement('span');
+  count.className = 'role-count';
+
+  title.appendChild(heading);
+  title.appendChild(count);
   return title;
 }
 

@@ -30,8 +30,25 @@
   text-transform: uppercase;
 }
 
-.role-title span {
+.role-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.role-name,
+.role-count {
   padding-top: 6px;
+}
+
+.role-blocked {
+  font-size: 32px;
+  letter-spacing: 0.06em;
+  color: rgba(242, 239, 232, 0.5);
+}
+
+.role-blocked.has-blocked {
+  color: #E03A3E;
 }
 
 .role-title::after {
@@ -41,6 +58,15 @@
   margin-left: 8px;
   background: linear-gradient(to right, #F2EFE8, rgba(242, 239, 232, 0));
   transform: skewX(-30deg);
+}
+
+.role-count {
+  order: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.role-count.done {
+  color: #43B581;
 }
 
 .role-icon {
