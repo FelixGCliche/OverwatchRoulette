@@ -1,27 +1,27 @@
 #hero-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  padding: 8px;
+  gap: 16px;
+  padding: 32px;
   border-radius: 6px;
   justify-content: center;
   background-color: #23272A;
 }
 
 .hero-item{
-  padding-bottom: 3px;
-  border-radius: 3px;
+  padding-bottom: 12px;
+  border-radius: 12px;
   background-color: #C8C8C8;
 }
 
 .hero-image {
-  border-radius: 3px;
+  border-radius: 12px;
   background-color: #1A1A1A;
 }
 
 .current {
   outline-style: solid; 
-  outline-width: 2px;
+  outline-width: 8px;
   outline-color: #FDBA21;
   background-color: #FDBA21;
 }
