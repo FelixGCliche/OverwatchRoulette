@@ -41,16 +41,6 @@
   padding-top: 6px;
 }
 
-.role-blocked {
-  font-size: 32px;
-  letter-spacing: 0.06em;
-  color: rgba(242, 239, 232, 0.5);
-}
-
-.role-blocked.has-blocked {
-  color: #E03A3E;
-}
-
 .role-title::after {
   content: '';
   flex: 1;
