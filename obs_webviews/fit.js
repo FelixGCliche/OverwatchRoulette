@@ -1,32 +1,43 @@
 // ========================================================================
 // FIT CONTENT TO VIEWPORT
-// Picks the largest --px (capped at the 1080p-based default) for which the
+// Picks the largest --px (capped at the base.css default) for which the
 // content of <main> fits the viewport. Layout stays responsive (wrapping
 // follows the viewport width); only the unit size shrinks when needed.
 // ========================================================================
 (() => {
+  const MIN_SCALE = 0.25; // never shrink below 25% of the default unit
   const root = document.documentElement;
   let main;
   let queued = false;
+  let fittedSize = '';
 
   function overflows() {
     return main.scrollHeight > main.clientHeight || main.scrollWidth > main.clientWidth;
   }
 
+  function contentSize() {
+    return [...main.children].map((el) => `${el.offsetWidth}x${el.offsetHeight}`).join();
+  }
+
   function fit() {
     queued = false;
-    let lo = 0;
-    let hi = Math.min(innerWidth, innerHeight) / 1080;
+    const designSize = parseFloat(getComputedStyle(root).getPropertyValue('--design-size')) || 1080;
+    let hi = Math.min(innerWidth, innerHeight) / designSize;
+    let lo = hi * MIN_SCALE;
 
     root.style.setProperty('--px', `${hi}px`);
-    if (!overflows()) return;
-
-    for (let i = 0; i < 14; i++) {
-      const mid = (lo + hi) / 2;
-      root.style.setProperty('--px', `${mid}px`);
-      if (overflows()) hi = mid; else lo = mid;
+    if (overflows()) {
+      root.style.setProperty('--px', `${lo}px`);
+      if (!overflows()) {
+        for (let i = 0; i < 12; i++) {
+          const mid = (lo + hi) / 2;
+          root.style.setProperty('--px', `${mid}px`);
+          if (overflows()) hi = mid; else lo = mid;
+        }
+      }
+      root.style.setProperty('--px', `${lo}px`);
     }
-    root.style.setProperty('--px', `${lo}px`);
+    fittedSize = contentSize();
   }
 
   function queueFit() {
@@ -35,12 +46,22 @@
     requestAnimationFrame(fit);
   }
 
+  // Refit only when content size changes for reasons other than our own
+  // fit (images loading, font swap, new rows) — not on class/text updates.
+  const resizeObserver = new ResizeObserver(() => {
+    if (contentSize() !== fittedSize) queueFit();
+  });
+
+  function observeChildren() {
+    resizeObserver.disconnect();
+    [...main.children].forEach((el) => resizeObserver.observe(el));
+    queueFit();
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     main = document.querySelector('main');
-    new MutationObserver(queueFit).observe(main, { childList: true, subtree: true });
+    new MutationObserver(observeChildren).observe(main, { childList: true });
     addEventListener('resize', queueFit);
-    document.addEventListener('load', queueFit, true); // images finishing loading
-    document.fonts.ready.then(queueFit);
-    queueFit();
+    observeChildren();
   });
 })();
