@@ -123,8 +123,6 @@ function CreateImage(hero) {
   img.className = 'hero-image';
   img.src = HERO_ICON_PATH + hero.image;
   img.alt = hero.name;
-  img.style.maxWidth = '128px';
-  img.style.height = 'auto';
   return img;
 }
 
