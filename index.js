@@ -5,7 +5,15 @@
 import { seedHeroes } from './store/seed.js';
 import { subscribe } from './store/core.js';
 import { heroes, currentHero } from './store/queries.js';
-import { selectRandomHero } from './store/mutations.js';
+import {
+  selectHero,
+  selectRandomHero,
+  toggleBlocked,
+  toggleCompleted,
+  importHeroes,
+  recordWin,
+  recordLoss,
+} from './store/mutations.js';
 
 const HERO_ICON_PATH = `assets/heroes_images/`;
 const ROLES_ICON_PATH = `assets/roles_icons/`;
@@ -22,9 +30,9 @@ const ROLES_ICONS = {
 
 function BindButtons() {
   const handlers = {
-    'current-hero-win': CurrentHeroWin,
-    'current-hero-lost': CurrentHeroLost,
-    'select-random': SelectRandomHero,
+    'current-hero-win': recordWin,
+    'current-hero-lost': recordLoss,
+    'select-random': selectRandomHero,
     'load-json': LoadJSON,
     'save-json': SaveJSON,
   };
@@ -90,18 +98,6 @@ function RenderCurrentHeroHeader() {
   currentHeroName.innerText = hero.name;
 }
 
-function CurrentHeroWin(){
-  const currentHeroIndex = GetCurrentHeroIndex();
-  ToggleCompleted(currentHeroIndex);
-  heroes[currentHeroIndex].win = heroes[currentHeroIndex].win + 1;
-  SelectRandomHero();
-}
-
-function CurrentHeroLost(){
-  const currentHeroIndex = GetCurrentHeroIndex();
-  heroes[currentHeroIndex].lost = heroes[currentHeroIndex].lost + 1;
-}
-
 // ========================================================================
 // HERO LIST
 // ========================================================================
@@ -111,12 +107,12 @@ function RenderHeroList() {
   //Delete all childrens
   list.textContent = '';
   
-  heroes().forEach((hero, index) => {
-    list.appendChild(CreateHeroItem(hero, index));
+  heroes().forEach((hero) => {
+    list.appendChild(CreateHeroItem(hero));
   });
 }
 
-function CreateHeroItem(hero, heroIndex) {
+function CreateHeroItem(hero) {
   const item = document.createElement('div');
   item.className = 'hero-item';
   if (hero.isBlocked) item.classList.add('blocked');
@@ -128,7 +124,7 @@ function CreateHeroItem(hero, heroIndex) {
   //infoCell.appendChild(CreateRoleIcon(hero));
   infoCell.appendChild(CreateName(hero));
   
-  const btnCell = CreateButtonContainer(hero, heroIndex);
+  const btnCell = CreateButtonContainer(hero);
   
   item.appendChild(infoCell);
   item.appendChild(btnCell);
@@ -171,108 +167,46 @@ function CreateName(hero) {
 // HERO BUTTON CONTAINER
 // ========================================================================
 
-function CreateButtonContainer(hero, heroIndex) {
+const HERO_ACTIONS = [
+  { text: 'Select', className: 'select-btn', run: selectHero },
+  { text: 'Complete', className: 'complete-btn', run: toggleCompleted },
+  { text: 'Block', className: 'block-btn', run: toggleBlocked },
+];
+
+function CreateButtonContainer(hero) {
   const container = document.createElement('div');
   container.style.display = 'flex';
   container.style.gap = '10px';
-  
-  ['Select', 'Complete', 'Block'].forEach((text, i) => {
+
+  HERO_ACTIONS.forEach(({ text, className, run }) => {
     const cell = document.createElement('div');
-    cell.className = `button-cell ${['select-btn', 'complete-btn', 'block-btn'][i]}`;
-    
+    cell.className = `button-cell ${className}`;
+
     const button = document.createElement('button');
     button.textContent = text;
-    
+
     // Disable select button if hero is completed or blocked
-    const isDisabled = i === 0 && (hero.isCompleted || hero.isBlocked); // i=0 is Select
+    const isDisabled = run === selectHero && (hero.isCompleted || hero.isBlocked);
     if (isDisabled) {
       button.disabled = true;
       button.style.opacity = '0.5';
     }
-    
-    button.onclick = () => OnButtonClick(heroIndex, i); 
-    
+
+    button.onclick = () => run(hero.name);
+
     cell.appendChild(button);
     container.appendChild(cell);
   });
-  
+
   return container;
-}
-
-// ========================================================================
-// HERO BUTTON ACTIONS
-// ========================================================================
-
-function OnButtonClick(heroIndex, buttonIndex) {
-  const action = ['select-btn', 'complete-btn', 'block-btn'][buttonIndex];
-  
-  switch (action) {
-    case 'select-btn':
-      if (heroes[heroIndex].isCompleted || heroes[heroIndex].isBlocked) {return;}
-      ToggleSelected(heroIndex);
-      break;
-    case 'complete-btn':
-      ToggleCompleted(heroIndex);
-      break;
-    case 'block-btn':
-      ToggleBlocked(heroIndex);
-      break;
-  }
-}
-
-function ToggleBlocked(heroIndex) {
-  heroes[heroIndex].isBlocked = !heroes[heroIndex].isBlocked;
-  
-  UpdateVisualState(heroIndex);
-  SendHeroUpdateBroadcast(heroes[heroIndex]);
-}
-
-function ToggleCompleted(heroIndex) {
-  heroes[heroIndex].isCompleted = !heroes[heroIndex].isCompleted;
-
-  UpdateVisualState(heroIndex);
-  SendHeroUpdateBroadcast(heroes[heroIndex]);
-}
-
-function ToggleSelected(heroIndex) {
-  const lastCurrentHeroIndex = GetCurrentHeroIndex();
-  if (lastCurrentHeroIndex != -1) {
-    heroes[GetCurrentHeroIndex()].isCurrent = false;
-    SendHeroUpdateBroadcast(heroes[GetCurrentHeroIndex()]);
-  }
-
-  currentHero = heroes[heroIndex];
-  heroes[heroIndex].isCurrent = true; 
-
-  RenderCurrentHeroHeader();
-  SendCurrentHeroBroadcast();
-  SendHeroUpdateBroadcast(heroes[heroIndex]);
 }
 
 // ========================================================================
 // FOOTER ACTIONS
 // ========================================================================
 
-function SelectRandomHero() {
-  // Get list of available heroes (not completed, not blocked)
-  const availableHeroes = heroes.filter(hero => 
-    !hero.isCompleted && !hero.isBlocked
-  );
-  
-  if (availableHeroes.length === 0) {
-    currentHero = null;
-    RenderCurrentHeroHeader();
-    console.log('No heroes available to select');
-    return;
-  }
-  
-  const randomIndex = Math.floor(Math.random() * availableHeroes.length);
-  hero = availableHeroes[randomIndex];
-  ToggleSelected(GetHeroIndex(hero.name));
-}
-
 function SaveJSON() {
-  const heroData = JSON.stringify(heroes, null, 2);
+  const heroData = JSON.stringify(heroes(), null, 2);
   const blob = new Blob([heroData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   
@@ -297,46 +231,29 @@ function LoadJSON() {
     const file = e.target.files[0];
     if (!file) return;
     
-    try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      // Parsing and validation happen inside the async callback, so the
+      // try/catch has to live here to catch them.
+      try {
         const data = JSON.parse(event.target.result);
-        
-        if (!Array.isArray(data)) throw new Error('Invalid hero list');
-        
-        heroes = data;
-        console.log('Heroes loaded:', heroes.length);
-        RenderHeroList();
-        SelectRandomHero();
-      };
-      
-      reader.onerror = () => {
-        console.error('Failed to read file');
-      };
-      
-      reader.readAsText(file);
-    } catch (error) {
-      console.error('Error loading hero data:', error);
-      alert('Failed to parse hero data. Please check the file format.');
-    }
+        importHeroes(data);
+        selectRandomHero();
+        console.log('Heroes loaded:', data.length);
+      } catch (error) {
+        console.error('Error loading hero data:', error);
+        alert('Failed to parse hero data. Please check the file format.');
+      }
+    };
+
+    reader.onerror = () => {
+      console.error('Failed to read file');
+    };
+
+    reader.readAsText(file);
   };
   
   fileInput.click();
-}
-
-// ========================================================================
-// UTILITY
-// ========================================================================
-
-function GetHeroIndex(name){
-  return heroes.findIndex((element) => element.name === name);
-}
-
-function GetCurrentHeroIndex(){
-  if ( currentHero){
-    return GetHeroIndex(currentHero.name);
-  }
-  return -1;
 }
 
 // ========================================================================
