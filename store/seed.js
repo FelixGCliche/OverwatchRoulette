@@ -2,13 +2,26 @@ import { read, write } from './storage.js';
 
 const SEED_URL = new URL('../assets/heroes.json', import.meta.url);
 
-const isValidHeroList = (storage) => 
-  Array.isArray(storage) && storage.every((hero) => typeof hero?.name === 'string');
+const FLAGS = ['isBlocked', 'isCompleted', 'isCurrent'];
+const COUNTERS = ['win', 'lost'];
 
-export async function seedHeroes() {
+const isValidHero = (hero) =>
+  typeof hero?.name === 'string' &&
+  FLAGS.every((key) => typeof hero[key] === 'boolean') &&
+  COUNTERS.every((key) => Number.isFinite(hero[key]));
+
+// Shape of heroes.json: used for stored data and for imported files.
+export const isValidHeroList = (list) => Array.isArray(list) && list.every(isValidHero);
+
+// Fetches the pristine hero list without touching storage.
+export async function loadSeed() {
   const response = await fetch(SEED_URL);
   if (!response.ok) throw new Error(`Failed to load heroes: ${response.statusText}`);
-  const seed = await response.json();
+  return response.json();
+}
+
+export async function seedHeroes() {
+  const seed = await loadSeed();
 
   const stored = read();
   if (!isValidHeroList(stored)) {
