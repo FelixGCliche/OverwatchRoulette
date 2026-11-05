@@ -11,6 +11,7 @@ import {
   toggleBlocked,
   toggleCompleted,
   importHeroes,
+  resetHeroes,
   recordWin,
   recordLoss,
 } from './store/mutations.js';
@@ -35,6 +36,7 @@ function BindButtons() {
     'select-random': selectRandomHero,
     'load-json': LoadJSON,
     'save-json': SaveJSON,
+    'reset': ResetHeroes,
   };
 
   for (const [id, handler] of Object.entries(handlers)) {
@@ -254,6 +256,19 @@ function LoadJSON() {
   };
   
   fileInput.click();
+}
+
+// Restores every hero from assets/heroes.json, discarding all progress.
+async function ResetHeroes() {
+  if (!confirm('You will lose your current data. Continue?')) return;
+
+  try {
+    await resetHeroes();
+    selectRandomHero();
+  } catch (error) {
+    console.error('Error resetting heroes:', error);
+    alert('Failed to reset heroes. Please check that assets/heroes.json is reachable.');
+  }
 }
 
 // ========================================================================
