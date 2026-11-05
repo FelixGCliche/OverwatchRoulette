@@ -31,9 +31,24 @@ function SendHeroUpdateBroadcast(hero) {
 // INITIALIZATION
 // ========================================================================
 
+function BindButtons() {
+  const handlers = {
+    'current-hero-win': CurrentHeroWin,
+    'current-hero-lost': CurrentHeroLost,
+    'select-random': SelectRandomHero,
+    'load-json': LoadJSON,
+    'save-json': SaveJSON,
+  };
+
+  for (const [id, handler] of Object.entries(handlers)) {
+    document.getElementById(id).addEventListener('click', handler);
+  }
+}
+
 async function Init() {
   const main = document.querySelector('main');
-  
+  BindButtons();
+
   try {
     const response = await fetch('./assets/heroes.json');
     

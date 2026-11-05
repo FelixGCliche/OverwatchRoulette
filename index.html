@@ -22,8 +22,8 @@
           <div id="current-hero-name"/></div>
         </div>
         <div id="current-hero-results">
-          <button id="current-hero-win" onclick="CurrentHeroWin()">Win</button>
-          <button id="current-hero-lost" onclick="CurrentHeroLost()">Lost</button>
+          <button id="current-hero-win">Win</button>
+          <button id="current-hero-lost">Lost</button>
         </div>
       </div>
       <div id="banner">
@@ -41,9 +41,9 @@
     <!-- Footer with Action Buttons (Bottom) -->
     <footer>
       <div id="action-buttons" style="display: flex; gap: 8px;">
-        <button onclick="SelectRandomHero()">Select Random Hero</button>
-        <button onclick="LoadJSON()">Load JSON</button>
-        <button onclick="SaveJSON()">Save JSON</button>
+        <button id="select-random">Select Random Hero</button>
+        <button id="load-json">Load JSON</button>
+        <button id="save-json">Save JSON</button>
         <a href="obs_webviews/current_hero.html" target="_blank">Current</a>
         <a href="obs_webviews/hero_grid.html" target="_blank">Grid</a>
       </div>
