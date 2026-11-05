@@ -1,16 +1,9 @@
-// Seeds localStorage from assets/heroes.json.
-//   - nothing stored, or stored data is corrupt/invalid: store the seed
-//   - valid stored data: keep it, appending any seed heroes missing by name,
-//     so new heroes in heroes.json show up without wiping saved progress
-// Idempotent, so every page can call it on load.
-
 import { read, write } from './storage.js';
 
 const SEED_URL = new URL('../assets/heroes.json', import.meta.url);
 
-function isValidHeroList(storage) {
-  return Array.isArray(storage) && storage.every((hero) => typeof hero?.name === 'string');
-}
+const isValidHeroList = (storage) => 
+  Array.isArray(storage) && storage.every((hero) => typeof hero?.name === 'string');
 
 export async function seedHeroes() {
   const response = await fetch(SEED_URL);
