@@ -2,6 +2,11 @@
   OVERWATCH HERO ROULETTE
   ============================================================ */
 
+import { seedHeroes } from './store/seed.js';
+import { subscribe } from './store/core.js';
+import { heroes, currentHero } from './store/queries.js';
+import { selectRandomHero } from './store/mutations.js';
+
 const HERO_ICON_PATH = `assets/heroes_images/`;
 const ROLES_ICON_PATH = `assets/roles_icons/`;
 
@@ -10,22 +15,6 @@ const ROLES_ICONS = {
   'Support': 'Role_Support_Circle.svg',
   'Tank': 'Role_Tank_Circle.svg',
 };
-
-let heroes;
-let currentHero = null;
-
-// ========================================================================
-// BROADCAST CHANNELS
-// ========================================================================
-const currentHeroChannel = new BroadcastChannel('current-hero');
-function SendCurrentHeroBroadcast() {
-  currentHeroChannel.postMessage(currentHero);
-}
-
-const heroUpdateChannel = new BroadcastChannel('hero-update');
-function SendHeroUpdateBroadcast(hero) {
-  heroUpdateChannel.postMessage(hero);
-}
 
 // ========================================================================
 // INITIALIZATION
@@ -50,16 +39,13 @@ async function Init() {
   BindButtons();
 
   try {
-    const response = await fetch('./assets/heroes.json');
-    
-    if (!response.ok) throw new Error(`Failed to load heroes: ${response.statusText}`);
-    
-    heroes = await response.json();
-    console.log('Heroes loaded:', heroes.length);
-    
-    RenderHeroList();
-    SelectRandomHero();
-    
+    await seedHeroes();
+    console.log('Heroes loaded:', heroes().length);
+
+    subscribe(Render);
+    Render();
+    if (!currentHero()) selectRandomHero();
+
   } catch (error) {
     console.error('Error loading heroes:', error);
     main.innerHTML = '<p style="color: #e74c3c;">Error loading hero data</p>';
@@ -70,12 +56,19 @@ async function Init() {
 // CURRENT HERO HEADER
 // ========================================================================
 
+// Re-runs on every store change (this tab's mutations and other tabs' writes).
+function Render() {
+  RenderCurrentHeroHeader();
+  RenderHeroList();
+}
+
 function RenderCurrentHeroHeader() {
   const banner = document.getElementById('banner');
   const currentHeroDisplay = document.getElementById('current-hero');
+  const hero = currentHero();
 
   //Toggle between current hero or the banner
-  if (!currentHero) {
+  if (!hero) {
     banner.style.display = "flex";
     currentHeroDisplay.style.display = "none";
     return;
@@ -88,13 +81,13 @@ function RenderCurrentHeroHeader() {
   const currentHeroRoleIcon = document.getElementById('current-hero-role-icon');
   const currentHeroName = document.getElementById('current-hero-name');
 
-  currentHeroIcon.src = HERO_ICON_PATH + currentHero.image;
-  currentHeroIcon.alt = currentHero.name;
+  currentHeroIcon.src = HERO_ICON_PATH + hero.image;
+  currentHeroIcon.alt = hero.name;
 
-  currentHeroRoleIcon.src = ROLES_ICON_PATH + ROLES_ICONS[currentHero.role];
-  currentHeroIcon.alt = currentHero.role;
+  currentHeroRoleIcon.src = ROLES_ICON_PATH + ROLES_ICONS[hero.role];
+  currentHeroIcon.alt = hero.role;
 
-  currentHeroName.innerText = currentHero.name;
+  currentHeroName.innerText = hero.name;
 }
 
 function CurrentHeroWin(){
@@ -118,7 +111,7 @@ function RenderHeroList() {
   //Delete all childrens
   list.textContent = '';
   
-  heroes.forEach((hero, index) => {
+  heroes().forEach((hero, index) => {
     list.appendChild(CreateHeroItem(hero, index));
   });
 }
@@ -344,14 +337,6 @@ function GetCurrentHeroIndex(){
     return GetHeroIndex(currentHero.name);
   }
   return -1;
-}
-
-function UpdateVisualState(heroIndex) {
-  const item = document.querySelector(`.hero-item:nth-child(${heroIndex + 1})`);
-  if (item) {
-    item.classList.toggle('blocked', heroes[heroIndex].isBlocked);
-    item.classList.toggle('completed', heroes[heroIndex].isCompleted);
-  }
 }
 
 // ========================================================================
