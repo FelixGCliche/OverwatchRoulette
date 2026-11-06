@@ -19,23 +19,25 @@
     return [...main.children].map((el) => `${el.offsetWidth}x${el.offsetHeight}`).join();
   }
 
+  function setPx(value) {
+    root.style.setProperty('--px', `${value}px`);
+  }
+
   function fit() {
     queued = false;
     const designSize = parseFloat(getComputedStyle(root).getPropertyValue('--design-size')) || 1080;
     let hi = Math.min(innerWidth, innerHeight) / designSize;
     let lo = hi * MIN_SCALE;
 
-    root.style.setProperty('--px', `${hi}px`);
+    setPx(hi);
     if (overflows()) {
-      root.style.setProperty('--px', `${lo}px`);
-      if (!overflows()) {
-        for (let i = 0; i < 12; i++) {
-          const mid = (lo + hi) / 2;
-          root.style.setProperty('--px', `${mid}px`);
-          if (overflows()) hi = mid; else lo = mid;
-        }
+      // Bisect for the largest scale that fits; lo is the fallback floor.
+      for (let i = 0; i < 12; i++) {
+        const mid = (lo + hi) / 2;
+        setPx(mid);
+        if (overflows()) hi = mid; else lo = mid;
       }
-      root.style.setProperty('--px', `${lo}px`);
+      setPx(lo);
     }
     fittedSize = contentSize();
   }
