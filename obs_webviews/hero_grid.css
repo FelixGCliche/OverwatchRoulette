@@ -1,11 +1,74 @@
+@font-face {
+  font-family: 'Big_Noodle';
+  src: url('../assets/big_noodle_titling.ttf');
+}
+
 #hero-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px;
+  border-radius: 24px;
+  background-color: #23272A;
+}
+
+.role-row {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.role-title {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #F2EFE8;
+  font-family: 'Big_Noodle', sans-serif;
+  font-size: 80px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.role-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.role-name,
+.role-count {
+  padding-top: 6px;
+}
+
+.role-title::after {
+  content: '';
+  flex: 1;
+  height: 10px;
+  margin-left: 8px;
+  background: linear-gradient(to right, #F2EFE8, rgba(242, 239, 232, 0));
+  transform: skewX(-30deg);
+}
+
+.role-count {
+  order: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.role-count.done {
+  color: #43B581;
+}
+
+.role-icon {
+  width: 80px;
+  height: 80px;
+}
+
+.role-heroes {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  padding: 32px;
-  border-radius: 24px;
   justify-content: center;
-  background-color: #23272A;
 }
 
 .hero-item{
