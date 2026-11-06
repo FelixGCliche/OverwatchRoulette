@@ -6,25 +6,25 @@
 #hero-grid {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding: 32px;
-  border-radius: 24px;
+  gap: calc(32 * var(--px));
+  padding: calc(32 * var(--px));
+  border-radius: calc(24 * var(--px));
   background-color: #23272A;
 }
 
 .role-row {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: calc(20 * var(--px));
 }
 
 .role-title {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: calc(20 * var(--px));
   color: #F2EFE8;
   font-family: 'Big_Noodle', sans-serif;
-  font-size: 80px;
+  font-size: calc(80 * var(--px));
   line-height: 1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -33,19 +33,19 @@
 .role-heading {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: calc(6 * var(--px));
 }
 
 .role-name,
 .role-count {
-  padding-top: 6px;
+  padding-top: calc(6 * var(--px));
 }
 
 .role-title::after {
   content: '';
   flex: 1;
-  height: 10px;
-  margin-left: 8px;
+  height: calc(10 * var(--px));
+  margin-left: calc(8 * var(--px));
   background: linear-gradient(to right, #F2EFE8, rgba(242, 239, 232, 0));
   transform: skewX(-30deg);
 }
@@ -60,32 +60,35 @@
 }
 
 .role-icon {
-  width: 80px;
-  height: 80px;
+  width: calc(80 * var(--px));
+  height: calc(80 * var(--px));
 }
 
 .role-heroes {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: calc(16 * var(--px));
   justify-content: center;
 }
 
-.hero-item{
-  padding-bottom: 16px;
-  border-radius: 12px;
+.hero-item {
+  padding-bottom: calc(16 * var(--px));
+  border-radius: calc(12 * var(--px));
   background-color: #C8C8C8;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 calc(4 * var(--px)) calc(8 * var(--px)) rgba(0, 0, 0, 0.5);
 }
 
 .hero-image {
-  border-radius: 12px;
+  display: block;
+  width: calc(128 * var(--px));
+  height: auto;
+  border-radius: calc(12 * var(--px));
   background-color: #1A1A1A;
 }
 
 .current {
-  outline-style: solid; 
-  outline-width: 8px;
+  outline-style: solid;
+  outline-width: calc(8 * var(--px));
   outline-color: #FDBA21;
   background-color: #FDBA21;
 }
