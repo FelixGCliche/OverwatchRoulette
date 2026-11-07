@@ -1,5 +1,5 @@
-import { subscribe } from '../store/core.js';
-import { currentHero } from '../store/queries.js';
+import { subscribe } from '../../../store/core.js';
+import { currentHero } from '../../../store/queries.js';
 
 const HERO_ICON_PATH = '../assets/heroes_images/';
 

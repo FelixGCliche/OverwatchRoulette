@@ -1,6 +1,6 @@
-import { seedHeroes } from '../store/seed.js';
-import { subscribe } from '../store/core.js';
-import { heroes } from '../store/queries.js';
+import { seedHeroes } from '../../../store/seed.js';
+import { subscribe } from '../../../store/core.js';
+import { heroes } from '../../../store/queries.js';
 
 const HERO_ICON_PATH = `../assets/heroes_images/`;
 const ROLES_ICON_PATH = `../assets/roles_icons/`;
