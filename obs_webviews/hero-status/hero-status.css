@@ -1,5 +1,5 @@
-@import url('components/hero-grid/hero-grid.css');
-@import url('components/current-hero/current-hero.css');
+@import url('../../components/hero-grid/hero-grid.css');
+@import url('../../components/current-hero/current-hero.css');
 
 /* The OBS browser source's Width/Height *is* the viewport. */
 html,

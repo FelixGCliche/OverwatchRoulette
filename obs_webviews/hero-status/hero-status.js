@@ -1,6 +1,6 @@
-import { seedHeroes } from '../store/seed.js';
-import { mountHeroGrid } from './components/hero-grid/hero-grid.js';
-import { mountCurrentHero } from './components/current-hero/current-hero.js';
+import { seedHeroes } from '../../store/seed.js';
+import { mountHeroGrid } from '../../components/hero-grid/hero-grid.js';
+import { mountCurrentHero } from '../../components/current-hero/current-hero.js';
 
 try {
   await seedHeroes();
