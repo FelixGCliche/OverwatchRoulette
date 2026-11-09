@@ -1,5 +1,6 @@
 import { subscribe } from '../../store/core.js';
 import { availableHeroes, currentHero, heroes } from '../../store/queries.js';
+import { watchSpin } from './spin-state.js';
 
 const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
 const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).href;
@@ -107,6 +108,12 @@ export function mountHeroWheel(root) {
       scene.classList.add('spinning');
     }
   }
+
+  // Subscribed before the render listener so the wheel is already visible
+  // when the spin animation restarts.
+  watchSpin((spinning) => {
+    root.hidden = !spinning;
+  });
 
   render();
   subscribe(render);

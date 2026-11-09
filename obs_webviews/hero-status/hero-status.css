@@ -13,6 +13,11 @@ body {
   background: rgba(0, 0, 0, 0);
 }
 
+/* Hidden (not removed) while the hero wheel spins, so layout doesn't shift. */
+body.wheel-spinning main {
+  visibility: hidden;
+}
+
 /* Grid on top, current-hero banner below. Overrides the page-level `main`
    rule that current-hero.css still carries from its standalone page. */
 main {
