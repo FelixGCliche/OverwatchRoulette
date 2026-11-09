@@ -1,0 +1,12 @@
+@import url('components/hero-grid/hero-grid.css');
+@import url('components/current-hero/current-hero.css');
+
+/* Grid on top, current-hero banner below. Overrides the page-level `main`
+   rule that current-hero.css still carries from its standalone page. */
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: calc(36 * var(--px));
+}
