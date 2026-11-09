@@ -5,6 +5,10 @@ const HERO_ICON_PATH = `../assets/heroes_images/`;
 const ROLES_ICON_PATH = `../assets/roles_icons/`;
 const ROLES = ['Tank', 'Damage', 'Support'];
 
+// Lucide "check" (https://lucide.dev/icons/check). Fetched as text and inlined
+// into each badge so CSS can color it with currentColor.
+const CHECK_SVG = await (await fetch(new URL('../../../assets/icons/check.svg', import.meta.url))).text();
+
 // Mounts the hero grid into `grid`. The store must already be seeded.
 // Re-renders on every store change (the dashboard writes from another page,
 // so this arrives via the storage event). The images are built once and only
@@ -105,6 +109,11 @@ export function mountHeroGrid(grid) {
     const item = document.createElement('div');
     item.className = 'hero-item';
     item.appendChild(CreateImage(hero));
+
+    const badge = document.createElement('span');
+    badge.className = 'hero-badge';
+    badge.innerHTML = CHECK_SVG;
+    item.appendChild(badge);
     return item;
   }
 
