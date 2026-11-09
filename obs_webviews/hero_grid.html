@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="components/hero-grid/hero-grid.css">
     <script src="fit.js"></script>
-    <script type="module" src="components/hero-grid/hero-grid.js"></script>
   </head>
   <body>
     <header>
@@ -18,5 +17,17 @@
     </main>
     <footer>
     </footer>
+    <script type="module">
+      import { seedHeroes } from '../store/seed.js';
+      import { mountHeroGrid } from './components/hero-grid/hero-grid.js';
+
+      try {
+        await seedHeroes();
+        mountHeroGrid(document.getElementById('hero-grid'));
+      } catch (error) {
+        console.error('Error loading heroes:', error);
+        document.querySelector('main').innerHTML = '<p style="color: #e74c3c;">Error loading hero data</p>';
+      }
+    </script>
   </body>
 </html>

@@ -3,7 +3,7 @@
   src: url('../../../assets/big_noodle_titling.ttf');
 }
 
-#hero-grid {
+.hero-grid {
   display: flex;
   flex-direction: column;
   gap: calc(32 * var(--px));

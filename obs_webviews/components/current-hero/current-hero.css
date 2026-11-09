@@ -4,7 +4,7 @@ main {
   justify-content: center;
 }
 
-#hero-icon {
+.hero-icon {
   max-width: 100%;
   max-height: 100%;
   border-radius: calc(6 * var(--px));
