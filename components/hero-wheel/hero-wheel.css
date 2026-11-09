@@ -1,0 +1,185 @@
+@font-face {
+  font-family: 'Big_Noodle';
+  src: url('../../assets/big_noodle_titling.ttf');
+}
+
+/* Vertical slot reel: one 400px tile stays centred under the gold payline,
+   dimmed neighbours above/below, hero name revealed to the right. */
+.hero-spin {
+  --tile: calc(400 * var(--px));
+  --gap: calc(20 * var(--px));
+  /* tile 22 centred in the 820px window: -(22 * 420 + 200 - 410) */
+  --end: calc(-9030 * var(--px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(96 * var(--px));
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 calc(96 * var(--px));
+  color: var(--color-text);
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+}
+
+.spin-panel {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  padding: calc(40 * var(--px));
+  border-radius: calc(28 * var(--px));
+  background: rgba(29, 33, 39, 1);
+  box-shadow: 0 calc(24 * var(--px)) calc(64 * var(--px)) rgba(0, 0, 0, 0.55);
+}
+
+.spin-window {
+  position: relative;
+  width: var(--tile);
+  height: calc(820 * var(--px));
+  overflow: hidden;
+  border-radius: calc(14 * var(--px));
+  background: rgba(21, 24, 28, 1);
+}
+
+.spin-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  transform: translateY(var(--end));
+  will-change: transform;
+}
+
+.spin-tile {
+  display: block;
+  flex: none;
+  width: var(--tile);
+  height: var(--tile);
+  object-fit: cover;
+  border-radius: calc(12 * var(--px));
+  background: var(--color-hero-bg);
+}
+
+.spin-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(21, 24, 28, 0.72) 0,
+    rgba(21, 24, 28, 0.72) calc(190 * var(--px)),
+    rgba(21, 24, 28, 0) calc(210 * var(--px)),
+    rgba(21, 24, 28, 0) calc(610 * var(--px)),
+    rgba(21, 24, 28, 0.72) calc(630 * var(--px)),
+    rgba(21, 24, 28, 0.72) 100%
+  );
+}
+
+.spin-payline {
+  position: absolute;
+  top: calc(244 * var(--px));
+  right: calc(34 * var(--px));
+  left: calc(34 * var(--px));
+  height: calc(412 * var(--px));
+  box-sizing: border-box;
+  border: calc(6 * var(--px)) solid var(--color-current);
+  border-radius: calc(18 * var(--px));
+  box-shadow: 0 0 calc(24 * var(--px)) rgba(253, 186, 33, 0.35);
+  pointer-events: none;
+}
+
+.spin-reveal {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: calc(16 * var(--px));
+  min-width: 0;
+}
+
+.spin-reveal[hidden] {
+  display: none;
+}
+
+.spin-role {
+  display: flex;
+  align-items: center;
+  gap: calc(20 * var(--px));
+  font-size: calc(72 * var(--px));
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: rgba(242, 239, 232, 0.7);
+}
+
+.spin-role-icon {
+  width: calc(72 * var(--px));
+  height: calc(72 * var(--px));
+}
+
+.spin-name {
+  font-size: calc(240 * var(--px));
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.spin-name.long {
+  font-size: calc(190 * var(--px));
+}
+
+/* ---- spin sequence: reel (5s) -> payline glow (6.4s) -> reveal (6.6s) ---- */
+@keyframes spin-reel {
+  0% {
+    transform: translateY(0);
+    filter: blur(calc(6 * var(--px)));
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.2, 1.03);
+  }
+  90% {
+    filter: blur(calc(2 * var(--px)));
+  }
+  100% {
+    transform: translateY(var(--end));
+    filter: blur(0);
+  }
+}
+
+@keyframes spin-glow {
+  0% {
+    box-shadow: 0 0 0 rgba(253, 186, 33, 0);
+  }
+  14% {
+    box-shadow: 0 0 calc(72 * var(--px)) rgba(253, 186, 33, 0.85);
+  }
+  100% {
+    box-shadow: 0 0 calc(24 * var(--px)) rgba(253, 186, 33, 0.35);
+  }
+}
+
+@keyframes spin-reveal {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(48 * var(--px)));
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-spin.spinning .spin-strip {
+  animation: spin-reel 5s both;
+}
+
+.hero-spin.spinning .spin-payline {
+  animation: spin-glow 2.6s linear 6.4s both;
+}
+
+.hero-spin.spinning .spin-reveal {
+  animation: spin-reveal 1s ease-out 6.6s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-spin.spinning .spin-strip,
+  .hero-spin.spinning .spin-payline,
+  .hero-spin.spinning .spin-reveal {
+    animation: none;
+  }
+}
