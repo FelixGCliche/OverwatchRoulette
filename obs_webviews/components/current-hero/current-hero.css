@@ -9,8 +9,8 @@
   gap: calc(40 * var(--px));
   padding: calc(32 * var(--px));
   border-radius: calc(16 * var(--px));
-  background-color: #15181C;
-  color: #F2EFE8;
+  background-color: var(--color-surface);
+  color: var(--color-text);
   font-family: 'Big_Noodle', sans-serif;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -27,7 +27,7 @@
   height: calc(224 * var(--px));
   object-fit: cover;
   border-radius: calc(8 * var(--px));
-  outline: calc(5 * var(--px)) solid #FDBA21;
+  outline: calc(5 * var(--px)) solid var(--color-current);
   outline-offset: calc(5 * var(--px));
 }
 
@@ -60,5 +60,5 @@
 .hero-lost-streak {
   font-size: calc(36 * var(--px));
   line-height: 1;
-  color: #E03A3E;
+  color: var(--color-danger);
 }

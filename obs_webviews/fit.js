@@ -1,6 +1,6 @@
 // ========================================================================
 // FIT CONTENT TO VIEWPORT
-// Picks the largest --px (capped at the base.css default) for which the
+// Picks the largest --px (capped at the root base.css default) for which the
 // content of <main> fits the viewport. Layout stays responsive (wrapping
 // follows the viewport width); only the unit size shrinks when needed.
 // ========================================================================

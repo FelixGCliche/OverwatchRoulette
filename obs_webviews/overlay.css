@@ -1,12 +1,25 @@
 @import url('components/hero-grid/hero-grid.css');
 @import url('components/current-hero/current-hero.css');
 
+/* The OBS browser source's Width/Height *is* the viewport. */
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding-right: calc(8 * var(--px));
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0);
+}
+
 /* Grid on top, current-hero banner below. Overrides the page-level `main`
    rule that current-hero.css still carries from its standalone page. */
 main {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: calc(36 * var(--px));
+  justify-content: space-around;
+  align-items: flex-end;
+  width: 100%;
+  height: 100%;
 }

@@ -9,7 +9,7 @@
   gap: calc(32 * var(--px));
   padding: calc(32 * var(--px));
   border-radius: calc(16 * var(--px));
-  background-color: #15181C;
+  background-color: var(--color-surface);
 }
 
 .role-row {
@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   gap: calc(16 * var(--px));
-  color: #F2EFE8;
+  color: var(--color-text);
   font-family: 'Big_Noodle', sans-serif;
   font-size: calc(64 * var(--px));
   line-height: 1;
@@ -42,7 +42,7 @@
 }
 
 .role-count.done {
-  color: #43B581;
+  color: var(--color-success);
 }
 
 .role-header {
@@ -54,7 +54,7 @@
 .role-bar {
   height: calc(8 * var(--px));
   border-radius: calc(4 * var(--px));
-  background-color: rgba(242, 239, 232, 0.15);
+  background-color: var(--color-text-faint);
   overflow: hidden;
 }
 
@@ -62,12 +62,12 @@
   width: 0;
   height: 100%;
   border-radius: inherit;
-  background-color: #F2EFE8;
+  background-color: var(--color-text);
   transition: width 0.2s ease;
 }
 
 .role-bar.done .role-bar-fill {
-  background-color: #43B581;
+  background-color: var(--color-success);
 }
 
 .role-icon {
@@ -93,11 +93,11 @@
   width: calc(128 * var(--px));
   height: auto;
   border-radius: calc(8 * var(--px));
-  background-color: #1A1A1A;
+  background-color: var(--color-hero-bg);
 }
 
 .current {
-  outline: calc(4 * var(--px)) solid #FDBA21;
+  outline: calc(4 * var(--px)) solid var(--color-current);
   outline-offset: calc(3 * var(--px));
 }
 
@@ -117,7 +117,7 @@
   bottom: 0;
   left: 0;
   height: calc(6 * var(--px));
-  background-color: #43B581;
+  background-color: var(--color-success);
 }
 
 .hero-badge {
@@ -129,14 +129,19 @@
   height: calc(32 * var(--px));
   padding: calc(6 * var(--px));
   border-radius: 50%;
-  background-color: #43B581;
-  color: #15181C;
+  background-color: var(--color-success);
+  color: var(--color-surface);
 }
 
 .hero-badge svg {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.hero-badge svg path {
+  vector-effect: non-scaling-stroke;
+  stroke-width: calc(4 * var(--px));
 }
 
 .completed .hero-badge {
