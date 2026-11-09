@@ -3,8 +3,6 @@
   src: url('../../assets/big_noodle_titling.ttf');
 }
 
-/* Vertical slot reel: one 400px tile stays centred under the gold payline,
-   dimmed neighbours above/below, hero name revealed to the right. */
 .hero-spin {
   --tile: calc(400 * var(--px));
   --gap: calc(20 * var(--px));
@@ -164,6 +162,17 @@
   }
 }
 
+@keyframes spin-fade-out {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.hero-spin.leaving {
+  animation: spin-fade-out 0.6s ease-in forwards;
+}
+
 .hero-spin.spinning .spin-strip {
   animation: spin-reel 5s both;
 }
@@ -177,6 +186,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-spin.leaving {
+    animation: none;
+  }
+
   .hero-spin.spinning .spin-strip,
   .hero-spin.spinning .spin-payline,
   .hero-spin.spinning .spin-reveal {

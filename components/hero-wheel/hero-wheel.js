@@ -10,6 +10,7 @@ const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).hr
 const TILE_COUNT = 24;
 const FINAL = 22;
 const LONG_NAME = 9;
+const FADE_MS = 600; // keep in sync with spin-fade-out in hero-wheel.css
 
 function pickFiller(pool, avoid, count) {
   const out = [];
@@ -111,8 +112,21 @@ export function mountHeroWheel(root) {
 
   // Subscribed before the render listener so the wheel is already visible
   // when the spin animation restarts.
+  let hideTimer = null;
   watchSpin((spinning) => {
-    root.hidden = !spinning;
+    clearTimeout(hideTimer);
+    if (spinning) {
+      scene.classList.remove('leaving');
+      root.hidden = false;
+    } else if (root.hidden) {
+      // Initial state or no hero: nothing to fade.
+    } else {
+      scene.classList.add('leaving');
+      hideTimer = setTimeout(() => {
+        root.hidden = true;
+        scene.classList.remove('leaving');
+      }, FADE_MS);
+    }
   });
 
   render();
