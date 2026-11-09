@@ -63,7 +63,12 @@ export function mountHeroGrid(grid) {
 
     const count = row.querySelector('.role-count');
     count.textContent = `${completed}/${available}`;
-    count.classList.toggle('done', available > 0 && completed >= available);
+    const done = available > 0 && completed >= available;
+    count.classList.toggle('done', done);
+
+    const bar = row.querySelector('.role-bar');
+    bar.classList.toggle('done', done);
+    bar.firstElementChild.style.width = available > 0 ? `${(completed / available) * 100}%` : '0%';
   }
 
   function CreateRoleTitle(role) {
@@ -76,17 +81,24 @@ export function mountHeroGrid(grid) {
     name.className = 'role-name';
     name.textContent = role;
 
-    const heading = document.createElement('div');
-    heading.className = 'role-heading';
-    heading.append(name);
-
     const count = document.createElement('span');
     count.className = 'role-count';
 
     const title = document.createElement('div');
     title.className = 'role-title';
-    title.append(icon, heading, count);
-    return title;
+    title.append(icon, name, count);
+
+    const fill = document.createElement('div');
+    fill.className = 'role-bar-fill';
+
+    const bar = document.createElement('div');
+    bar.className = 'role-bar';
+    bar.append(fill);
+
+    const header = document.createElement('div');
+    header.className = 'role-header';
+    header.append(title, bar);
+    return header;
   }
 
   function CreateHeroItem(hero) {

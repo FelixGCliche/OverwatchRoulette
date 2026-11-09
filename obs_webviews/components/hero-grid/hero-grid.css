@@ -8,50 +8,36 @@
   flex-direction: column;
   gap: calc(32 * var(--px));
   padding: calc(32 * var(--px));
-  border-radius: calc(24 * var(--px));
-  background-color: #23272A;
+  border-radius: calc(16 * var(--px));
+  background-color: #15181C;
 }
 
 .role-row {
   display: flex;
   flex-direction: column;
-  gap: calc(20 * var(--px));
+  gap: calc(16 * var(--px));
 }
 
 .role-title {
   display: flex;
   align-items: center;
-  gap: calc(20 * var(--px));
+  gap: calc(16 * var(--px));
   color: #F2EFE8;
   font-family: 'Big_Noodle', sans-serif;
-  font-size: calc(80 * var(--px));
+  font-size: calc(64 * var(--px));
   line-height: 1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.role-heading {
-  display: flex;
-  flex-direction: column;
-  gap: calc(6 * var(--px));
-}
-
 .role-name,
 .role-count {
-  padding-top: calc(6 * var(--px));
+  padding-top: calc(8 * var(--px));
 }
 
-.role-title::after {
-  content: '';
-  flex: 1;
-  height: calc(10 * var(--px));
-  margin-left: calc(8 * var(--px));
-  background: linear-gradient(to right, #F2EFE8, rgba(242, 239, 232, 0));
-  transform: skewX(-30deg);
-}
-
+/* auto margin acts as the spacer that pushes the count to the right edge */
 .role-count {
-  order: 1;
+  margin-left: auto;
   font-variant-numeric: tabular-nums;
 }
 
@@ -59,9 +45,34 @@
   color: #43B581;
 }
 
+.role-header {
+  display: flex;
+  flex-direction: column;
+  gap: calc(16 * var(--px));
+}
+
+.role-bar {
+  height: calc(8 * var(--px));
+  border-radius: calc(4 * var(--px));
+  background-color: rgba(242, 239, 232, 0.15);
+  overflow: hidden;
+}
+
+.role-bar-fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background-color: #F2EFE8;
+  transition: width 0.2s ease;
+}
+
+.role-bar.done .role-bar-fill {
+  background-color: #43B581;
+}
+
 .role-icon {
-  width: calc(80 * var(--px));
-  height: calc(80 * var(--px));
+  width: calc(64 * var(--px));
+  height: calc(64 * var(--px));
 }
 
 .role-heroes {
