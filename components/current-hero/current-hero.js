@@ -1,8 +1,8 @@
-import { subscribe } from '../../../store/core.js';
-import { currentHero } from '../../../store/queries.js';
+import { subscribe } from '../../store/core.js';
+import { currentHero } from '../../store/queries.js';
 
-const HERO_ICON_PATH = '../assets/heroes_images/';
-const ROLES_ICON_PATH = '../assets/roles_icons/';
+const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
+const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).href;
 
 // Mounts the current-hero view into `el`. Renders from localStorage on mount,
 // then again on every store change (the dashboard writes in another page, so

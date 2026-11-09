@@ -1,13 +1,13 @@
-import { subscribe } from '../../../store/core.js';
-import { heroes } from '../../../store/queries.js';
+import { subscribe } from '../../store/core.js';
+import { heroes } from '../../store/queries.js';
 
-const HERO_ICON_PATH = `../assets/heroes_images/`;
-const ROLES_ICON_PATH = `../assets/roles_icons/`;
+const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
+const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).href;
 const ROLES = ['Tank', 'Damage', 'Support'];
 
 // Lucide "check" (https://lucide.dev/icons/check). Fetched as text and inlined
 // into each badge so CSS can color it with currentColor.
-const CHECK_SVG = await (await fetch(new URL('../../../assets/icons/check.svg', import.meta.url))).text();
+const CHECK_SVG = await (await fetch(new URL('../../assets/icons/check.svg', import.meta.url))).text();
 
 // Mounts the hero grid into `grid`. The store must already be seeded.
 // Re-renders on every store change (the dashboard writes from another page,
