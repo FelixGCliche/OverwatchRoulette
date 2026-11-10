@@ -1,0 +1,64 @@
+@font-face {
+  font-family: 'Big_Noodle';
+  src: url('../../assets/big_noodle_titling.ttf');
+}
+
+.current-hero {
+  display: flex;
+  align-items: center;
+  gap: calc(40 * var(--px));
+  padding: calc(32 * var(--px));
+  border-radius: calc(16 * var(--px));
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Big_Noodle', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* display:flex above would otherwise beat the [hidden] attribute */
+.current-hero[hidden] {
+  display: none;
+}
+
+.hero-icon {
+  flex: none;
+  width: calc(224 * var(--px));
+  height: calc(224 * var(--px));
+  object-fit: cover;
+  border-radius: calc(8 * var(--px));
+  outline: calc(5 * var(--px)) solid var(--color-current);
+  outline-offset: calc(5 * var(--px));
+}
+
+.hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8 * var(--px));
+  min-width: 0;
+}
+
+.hero-role {
+  display: flex;
+  align-items: center;
+  gap: calc(16 * var(--px));
+  font-size: calc(36 * var(--px));
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.role-icon {
+  width: calc(36 * var(--px));
+  height: calc(36 * var(--px));
+}
+
+.hero-name {
+  font-size: calc(112 * var(--px));
+  line-height: 1;
+}
+
+.hero-lost-streak {
+  font-size: calc(36 * var(--px));
+  line-height: 1;
+  color: var(--color-danger);
+}

@@ -1,0 +1,47 @@
+/* ========================================================================
+   SHARED BASE
+   Design tokens and resets loaded by every page. --px equals 1px when the
+   shorter side of the viewport is 1080px and scales with it otherwise, so
+   OBS views designed at 1080p render natively (sharp) at any source size.
+   ======================================================================== */
+:root {
+  --design-size: 1080;
+  --px: calc(100vmin / var(--design-size));
+
+  /* overlay palette */
+  --color-surface: rgba(21, 24, 28, 0.67);
+  --color-text: rgba(242, 239, 232, 1);
+  --color-text-faint: rgba(242, 239, 232, 0.15);
+  --color-success: rgba(67, 181, 129, 1);
+  --color-current: rgba(253, 186, 33, 1);
+  --color-danger: rgba(224, 58, 62, 1);
+
+  /* control panel palette */
+  --color-panel: rgba(45, 45, 45, 1);
+  --color-border: rgba(68, 68, 68, 1);
+  --color-hover: rgba(107, 185, 255, 1);
+  --color-hover-glow: rgba(107, 185, 255, 0.3);
+  --color-shadow: rgba(0, 0, 0, 0.5);
+  --color-text-muted: rgba(224, 224, 224, 1);
+  --color-primary: rgba(52, 152, 219, 1);
+  --color-primary-hover: rgba(41, 128, 185, 1);
+  --color-neutral: rgba(108, 117, 125, 1);
+  --color-neutral-hover: rgba(90, 98, 104, 1);
+  --color-positive: rgba(39, 174, 96, 1);
+  --color-positive-hover: rgba(33, 145, 80, 1);
+  --color-negative: rgba(231, 76, 60, 1);
+  --color-negative-hover: rgba(192, 57, 43, 1);
+  --color-positive-bg: rgba(46, 74, 46, 1);
+  --color-negative-bg: rgba(74, 46, 46, 1);
+  --color-header: rgba(83, 154, 227, 1);
+  --color-button: rgba(233, 233, 233, 1);
+  --color-button-hover: rgba(213, 213, 213, 1);
+  --color-button-text: rgba(0, 0, 0, 1);
+  --color-hero-bg: rgba(26, 26, 26, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
