@@ -12,6 +12,21 @@
 
 [hidden] { display: none !important; }
 
+/* Themed scrollbars (page, dock tile grid, popovers) */
+html, body, main {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(242, 239, 232, 0.25) var(--cp-bg);
+}
+html { color-scheme: dark; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--cp-bg); }
+::-webkit-scrollbar-thumb {
+  background: rgba(242, 239, 232, 0.25);
+  border-radius: 5px;
+  border: 2px solid var(--cp-bg);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(242, 239, 232, 0.4); }
+
 html, body {
   margin: 0;
   background: var(--cp-bg);
@@ -120,6 +135,16 @@ body.compact #current-hero, body.compact #banner { min-height: 0; }
   overflow-wrap: anywhere;
 }
 
+#current-hero-streak {
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--cp-muted);
+}
+body.compact #current-hero-streak { font-size: 22px; }
+body.dock #current-hero-streak { font-size: 18px; }
+
 #current-hero-results { display: flex; gap: 12px; }
 
 #banner {
@@ -206,8 +231,10 @@ body.compact #current-hero, body.compact #banner { min-height: 0; }
 #role-tab-list { display: flex; flex: 1; gap: 4px; min-width: 0; }
 .role-tab {
   flex: 1;
-  min-height: 40px;
-  padding: 0 4px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: calc(4 * --px);
   border: 1px solid var(--cp-line);
   border-radius: 6px;
   background: transparent;
@@ -341,7 +368,7 @@ body.compact #more-actions a { padding: 12px 8px; font-size: 15px; }
    DOCK (360px, tiles + tabs + sheet)
    ============================================================ */
 body.dock #app { max-width: 360px; padding: 8px; gap: 6px; height: 100vh; min-height: 0; }
-body.dock #header { padding: 8px; box-shadow: 0 0 0 8px var(--cp-bg); }
+body.dock #header { padding: 8px; box-shadow: 0 0 0 6px var(--cp-bg); }
 body.dock #current-hero { flex-direction: row; align-items: center; }
 body.dock #current-hero-icon { width: 56px; outline-offset: 2px; }
 body.dock #current-hero-info { gap: 10px; }

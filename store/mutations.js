@@ -71,16 +71,16 @@ export const toggleCompleted = createMutation((name) => {
   console.log('[mutations:toggleCompleted]', name, JSON.stringify({ isCompleted: hero.isCompleted }), movedOnText(movedTo));
 });
 
-// Completes the current hero, counts the win, and moves on to a random hero.
+// Completes the current hero and counts the win. The current hero is left
+// as is; selecting the next one is a separate action.
 export const recordWin = createMutation(() => {
   const list = heroes();
   const current = list.find((h) => h.isCurrent);
   if (!current) return;
-  const won = updateHero(list, current.name, (h) => ({ isCompleted: true, win: h.win + 1 }));
-  const next = withRandomCurrent(won);
+  const next = updateHero(list, current.name, (h) => ({ isCompleted: true, win: h.win + 1 }));
   write(next);
   const { isCompleted, win } = findHero(next, current.name);
-  console.log('[mutations:recordWin]', current.name, JSON.stringify({ isCompleted, win }), `current -> ${currentName(next) ?? 'none'}`);
+  console.log('[mutations:recordWin]', current.name, JSON.stringify({ isCompleted, win }));
 });
 
 export const recordLoss = createMutation(() => {

@@ -239,6 +239,7 @@ function RenderCurrentHeroHeader() {
   $('current-hero-role-icon').src = ROLES_ICON_PATH + ROLES_ICONS[hero.role];
   $('current-hero-role-name').textContent = hero.role;
   $('current-hero-name').textContent = hero.name;
+  $('current-hero-streak').textContent = `Lost streak: ${hero.lost}`;
 }
 
 // ========================================================================
