@@ -9,7 +9,6 @@ const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).hr
 // and FINAL is the winner; --end in the CSS is derived from FINAL.
 const TILE_COUNT = 24;
 const FINAL = 22;
-const LONG_NAME = 9;
 const FADE_MS = 600; // keep in sync with spin-fade-out in hero-wheel.css
 
 function pickFiller(pool, avoid, count) {
@@ -78,7 +77,6 @@ export function mountHeroWheel(root) {
     roleIcon.src = `${ROLES_ICON_PATH}Role_${hero.role}_Circle.svg`;
     roleName.textContent = hero.role;
     name.textContent = hero.name;
-    name.classList.toggle('long', hero.name.length > LONG_NAME);
   }
 
   function render() {
@@ -128,6 +126,7 @@ export function mountHeroWheel(root) {
       }, FADE_MS);
     }
   });
+  
 
   render();
   subscribe(render);
