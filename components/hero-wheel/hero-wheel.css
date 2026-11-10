@@ -90,6 +90,9 @@
   flex-direction: column;
   gap: calc(16 * var(--px));
   min-width: 0;
+  /* padding: calc(32 * var(--px));
+  border-radius: calc(16 * var(--px));
+  background-color: var(--color-surface); */
 }
 
 .spin-reveal[hidden] {
@@ -111,31 +114,24 @@
   height: calc(72 * var(--px));
 }
 
+
 .spin-name {
-  font-size: calc(240 * var(--px));
+  font-size: calc(240 * var(--px) * var(--fit, 1));
   line-height: 0.9;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-
-.spin-name.long {
-  font-size: calc(190 * var(--px));
+  color: var(--color-text);
+  white-space: nowrap;
 }
 
 /* ---- spin sequence: reel (5s) -> payline glow (6.4s) -> reveal (6.6s) ---- */
 @keyframes spin-reel {
   0% {
     transform: translateY(0);
-    filter: blur(calc(6 * var(--px)));
     animation-timing-function: cubic-bezier(0.25, 0.6, 0.2, 1.03);
-  }
-  90% {
-    filter: blur(calc(2 * var(--px)));
   }
   100% {
     transform: translateY(var(--end));
-    filter: blur(0);
   }
 }
 

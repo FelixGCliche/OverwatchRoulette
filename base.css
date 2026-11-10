@@ -38,6 +38,21 @@
   --color-button-hover: rgba(213, 213, 213, 1);
   --color-button-text: rgba(0, 0, 0, 1);
   --color-hero-bg: rgba(26, 26, 26, 1);
+
+  /* control panel redesign */
+  --cp-bg: #15181C;
+  --cp-surface: #1D2127;
+  --cp-popover: #252b33;
+  --cp-text: #F2EFE8;
+  --cp-muted: rgba(242, 239, 232, 0.7);
+  --cp-line: rgba(242, 239, 232, 0.25);
+  --cp-gold: #FDBA21;
+  --cp-green: #43B581;
+  --cp-red: #E03A3E;
+  --cp-red-soft: #E5605F;
+  --cp-green-bg: #1f3b2c;
+  --cp-red-bg: #3d2224;
+  --cp-link: #9fb4c9;
 }
 
 *,

@@ -1,5 +1,6 @@
 import { subscribe } from '../../store/core.js';
 import { heroes } from '../../store/queries.js';
+import { watchSpin } from '../hero-wheel/spin-state.js';
 
 const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
 const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).href;
@@ -20,6 +21,7 @@ export function mountHeroGrid(grid) {
   grid.classList.add('hero-grid');
 
   function RenderHeroGrid() {
+    if (spinning) return;
     const list = heroes();
 
     const sameHeroes = list.length === builtNames.length && list.every((hero, i) => hero.name === builtNames[i]);
@@ -125,6 +127,14 @@ export function mountHeroGrid(grid) {
     return img;
   }
 
+  // The page slides this view out while the hero wheel spins. Keep the old
+  // state until the spin ends so the new hero isn't shown early. watchSpin must
+  // subscribe before RenderHeroGrid so `spinning` is already set when it runs.
+  let spinning = false;
+  watchSpin((isSpinning) => {
+    spinning = isSpinning;
+    if (!spinning) RenderHeroGrid();
+  });
   subscribe(RenderHeroGrid);
   RenderHeroGrid();
 }

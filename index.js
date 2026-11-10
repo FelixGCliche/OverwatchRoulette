@@ -4,7 +4,7 @@
 
 import { seedHeroes } from './store/seed.js';
 import { subscribe } from './store/core.js';
-import { heroes, currentHero } from './store/queries.js';
+import { heroes, currentHero, isAvailable } from './store/queries.js';
 import {
   selectHero,
   selectRandomHero,
@@ -25,199 +25,396 @@ const ROLES_ICONS = {
   'Tank': 'Role_Tank_Circle.svg',
 };
 
+// UI-only state. Hero data lives in the store; none of this is persisted.
+const ui = {
+  query: '',
+  filters: { available: false, completed: false, blocked: false },
+  role: 'All',
+  filterOpen: false,
+  menuOpen: false,
+  sheet: null, // hero name shown in the dock bottom sheet
+};
+
+const $ = (id) => document.getElementById(id);
+
+// ========================================================================
+// LAYOUT MODE
+// ========================================================================
+
+// compact = mobile width or dock; dock = ?dock in the URL or a very narrow window.
+const mobileQuery = window.matchMedia('(max-width: 480px)');
+const dockQuery = window.matchMedia('(max-width: 380px)');
+const forceDock = new URLSearchParams(location.search).has('dock');
+
+const isDock = () => forceDock || dockQuery.matches;
+
+function ApplyLayout() {
+  const dock = isDock();
+  document.body.classList.toggle('dock', dock);
+  document.body.classList.toggle('compact', dock || mobileQuery.matches);
+  if (!dock) CloseSheet(false);
+  Render();
+}
+
 // ========================================================================
 // INITIALIZATION
 // ========================================================================
 
-function BindButtons() {
-  const handlers = {
+function BindControls() {
+  const clicks = {
     'current-hero-win': recordWin,
     'current-hero-lost': recordLoss,
     'select-random': selectRandomHero,
+    'banner-random': selectRandomHero,
     'load-json': LoadJSON,
     'save-json': SaveJSON,
     'reset': ResetHeroes,
+    'filter-toggle': () => SetFilterOpen(!ui.filterOpen),
+    'filter-backdrop': () => SetFilterOpen(false),
+    'filter-clear': ClearFilters,
+    'more-toggle': () => { ui.menuOpen = !ui.menuOpen; RenderFooter(); },
+    'sheet-backdrop': () => CloseSheet(true),
   };
-
-  for (const [id, handler] of Object.entries(handlers)) {
-    document.getElementById(id).addEventListener('click', handler);
+  for (const [id, handler] of Object.entries(clicks)) {
+    $(id).addEventListener('click', handler);
   }
+
+  $('search').addEventListener('input', (e) => {
+    ui.query = e.target.value;
+    RenderLists();
+  });
+
+  document.querySelectorAll('[data-filter]').forEach((box) => {
+    box.addEventListener('change', () => {
+      ui.filters[box.dataset.filter] = box.checked;
+      Render();
+    });
+  });
+
+  document.querySelectorAll('.role-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      ui.role = tab.dataset.role;
+      Render();
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (ui.sheet) CloseSheet(true);
+    else if (ui.filterOpen) SetFilterOpen(false, true);
+  });
+
+  mobileQuery.addEventListener('change', ApplyLayout);
+  dockQuery.addEventListener('change', ApplyLayout);
 }
 
 async function Init() {
-  const main = document.querySelector('main');
-  BindButtons();
+  BindControls();
 
   try {
     await seedHeroes();
     console.log('Heroes loaded:', heroes().length);
 
     subscribe(Render);
-    Render();
+    ApplyLayout();
     if (!currentHero()) selectRandomHero();
 
   } catch (error) {
-    console.error('Error loading heroes:', error);
-    main.innerHTML = '<p style="color: #e74c3c;">Error loading hero data</p>';
+    console.error('Error loading hero data:', error);
+    const main = document.querySelector('main');
+    main.textContent = '';
+    const message = document.createElement('p');
+    message.style.color = '#e74c3c';
+    message.textContent = 'Error loading hero data';
+    main.appendChild(message);
   }
+}
+
+// Re-runs on every store change (this tab's mutations and other tabs' writes)
+// and on every UI-state change. The search input is never re-created, so it
+// keeps focus and caret position.
+function Render() {
+  RenderCurrentHeroHeader();
+  RenderFilter();
+  RenderLists();
+  RenderFooter();
+}
+
+function RenderLists() {
+  const dock = document.body.classList.contains('dock');
+  const shown = VisibleHeroes();
+
+  if (dock) {
+    RenderTabs();
+    RenderTiles(shown);
+    $('hero-list').textContent = '';
+  } else {
+    RenderHeroList(shown);
+    $('hero-tiles').textContent = '';
+  }
+  RenderSheet();
+  $('no-match').hidden = shown.length > 0;
+}
+
+// ========================================================================
+// FILTERING
+// ========================================================================
+
+// Role tab (dock only) AND search text AND status filters. Status filters are
+// OR-combined; with none checked every status passes.
+function VisibleHeroes() {
+  const q = ui.query.trim().toLowerCase();
+  const { available, completed, blocked } = ui.filters;
+  const anyStatus = available || completed || blocked;
+  const roleTab = isDock() ? ui.role : 'All';
+
+  return heroes().filter((hero) => {
+    if (roleTab !== 'All' && hero.role !== roleTab) return false;
+    if (q && !hero.name.toLowerCase().includes(q)) return false;
+    if (!anyStatus) return true;
+    return (available && isAvailable(hero))
+      || (completed && hero.isCompleted)
+      || (blocked && hero.isBlocked);
+  });
+}
+
+function ClearFilters() {
+  ui.filters = { available: false, completed: false, blocked: false };
+  Render();
+}
+
+function SetFilterOpen(open, returnFocus = false) {
+  ui.filterOpen = open;
+  RenderFilter();
+  if (open) $('filter-menu').querySelector('input').focus();
+  else if (returnFocus) $('filter-toggle').focus();
+}
+
+function RenderFilter() {
+  const all = heroes();
+  const counts = {
+    available: all.filter(isAvailable).length,
+    completed: all.filter((h) => h.isCompleted).length,
+    blocked: all.filter((h) => h.isBlocked).length,
+  };
+  const active = Object.keys(ui.filters).filter((k) => ui.filters[k]);
+
+  document.querySelectorAll('[data-filter]').forEach((box) => {
+    box.checked = ui.filters[box.dataset.filter];
+  });
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    el.textContent = counts[el.dataset.count];
+  });
+
+  const label = active.length === 0 ? 'Filter'
+    : active.length === 1 ? active[0][0].toUpperCase() + active[0].slice(1)
+    : `${active.length} filters`;
+  $('filter-label').textContent = label;
+  $('filter-toggle').classList.toggle('active', active.length > 0);
+  $('filter-toggle').setAttribute('aria-expanded', String(ui.filterOpen));
+  $('filter-menu').hidden = !ui.filterOpen;
+  $('filter-backdrop').hidden = !ui.filterOpen;
 }
 
 // ========================================================================
 // CURRENT HERO HEADER
 // ========================================================================
 
-// Re-runs on every store change (this tab's mutations and other tabs' writes).
-function Render() {
-  RenderCurrentHeroHeader();
-  RenderHeroList();
-}
-
 function RenderCurrentHeroHeader() {
-  const banner = document.getElementById('banner');
-  const currentHeroDisplay = document.getElementById('current-hero');
   const hero = currentHero();
+  $('current-hero').hidden = !hero;
+  $('banner').hidden = !!hero;
 
-  //Toggle between current hero or the banner
   if (!hero) {
-    banner.style.display = "flex";
-    currentHeroDisplay.style.display = "none";
+    const none = !heroes().some(isAvailable);
+    $('banner-text').textContent = none ? 'No more hero to select' : 'No hero selected';
+    $('banner-random').disabled = none;
     return;
-  }else{
-    currentHeroDisplay.style.display = "flex"
-    banner.style.display = "none";
   }
 
-  const currentHeroIcon = document.getElementById('current-hero-icon');
-  const currentHeroRoleIcon = document.getElementById('current-hero-role-icon');
-  const currentHeroName = document.getElementById('current-hero-name');
+  const icon = $('current-hero-icon');
+  icon.src = HERO_ICON_PATH + hero.image;
+  icon.alt = hero.name;
 
-  currentHeroIcon.src = HERO_ICON_PATH + hero.image;
-  currentHeroIcon.alt = hero.name;
-
-  currentHeroRoleIcon.src = ROLES_ICON_PATH + ROLES_ICONS[hero.role];
-  currentHeroIcon.alt = hero.role;
-
-  currentHeroName.innerText = hero.name;
+  $('current-hero-role-icon').src = ROLES_ICON_PATH + ROLES_ICONS[hero.role];
+  $('current-hero-role-name').textContent = hero.role;
+  $('current-hero-name').textContent = hero.name;
+  $('current-hero-streak').textContent = `Lost streak: ${hero.lost}`;
 }
 
 // ========================================================================
-// HERO LIST
+// HERO CARDS (desktop and mobile)
 // ========================================================================
 
-function RenderHeroList() {
-  const list = document.getElementById('hero-list');
-  //Delete all childrens
+function StatusOf(hero) {
+  if (hero.isCurrent) return 'Playing now';
+  if (hero.isCompleted) return 'Completed';
+  if (hero.isBlocked) return 'Blocked';
+  return 'Available';
+}
+
+function RenderHeroList(shown) {
+  const list = $('hero-list');
   list.textContent = '';
-  
-  heroes().forEach((hero) => {
-    list.appendChild(CreateHeroItem(hero));
-  });
+  shown.forEach((hero) => list.appendChild(CreateHeroCard(hero)));
 }
 
-function CreateHeroItem(hero) {
-  const item = document.createElement('div');
-  item.className = 'hero-item';
-  if (hero.isBlocked) item.classList.add('blocked');
-  if (hero.isCompleted) item.classList.add('completed');
-  
-  const infoCell = document.createElement('div');
-  infoCell.className = 'hero-info';
-  infoCell.appendChild(CreateImage(hero));
-  //infoCell.appendChild(CreateRoleIcon(hero));
-  infoCell.appendChild(CreateName(hero));
-  
-  const btnCell = CreateButtonContainer(hero);
-  
-  item.appendChild(infoCell);
-  item.appendChild(btnCell);
-  
-  return item;
-}
+function CreateHeroCard(hero) {
+  const card = document.createElement('div');
+  card.className = 'hero-card';
+  if (hero.isCurrent) card.classList.add('current');
+  if (hero.isCompleted) card.classList.add('completed');
+  if (hero.isBlocked) card.classList.add('blocked');
 
-function CreateImage(hero) {
+  const info = document.createElement('div');
+  info.className = 'card-info';
+
   const img = document.createElement('img');
   img.src = HERO_ICON_PATH + hero.image;
-  img.alt = hero.name;
-  img.style.maxWidth = '32px';
-  img.style.height = 'auto';
-  return img;
+  img.alt = '';
+
+  const text = document.createElement('div');
+  text.className = 'card-text';
+  const name = document.createElement('span');
+  name.className = 'card-name';
+  name.textContent = hero.name;
+  const status = document.createElement('span');
+  status.className = 'card-status';
+  status.textContent = StatusOf(hero);
+  text.append(name, status);
+  info.append(img, text);
+
+  const actions = document.createElement('div');
+  actions.className = 'card-actions';
+  actions.append(
+    CreateActionButton('Select', 'btn card-select', () => selectHero(hero.name), hero.isCompleted || hero.isBlocked),
+    CreateActionButton(hero.isCompleted ? 'Undo' : 'Complete', 'btn btn-outline', () => toggleCompleted(hero.name)),
+    CreateActionButton(hero.isBlocked ? 'Unblock' : 'Block', 'btn btn-outline', () => toggleBlocked(hero.name)),
+  );
+
+  card.append(info, actions);
+  return card;
 }
 
-function CreateRoleIcon(hero) {
-  const cell = document.createElement('div');
-  cell.className = 'role-cell';
-  
-  const src = ROLES_ICONS[hero.role] || '';
-  const img = document.createElement('img');
-  img.src = HERO_ICON_PATH + ROLES_ICONS[hero.role];
-  img.alt = hero.role;
-  img.style.maxWidth = '24px';
-  img.style.height = 'auto';
-  
-  cell.appendChild(img);
-  return cell;
-}
-
-function CreateName(hero) {
-  const div = document.createElement('div');
-  div.className = 'name-cell';
-  div.textContent = hero.name;
-  return div;
+function CreateActionButton(text, className, onClick, disabled = false) {
+  const button = document.createElement('button');
+  button.className = className;
+  button.textContent = text;
+  button.disabled = disabled;
+  button.addEventListener('click', onClick);
+  return button;
 }
 
 // ========================================================================
-// HERO BUTTON CONTAINER
+// DOCK: ROLE TABS, TILES, BOTTOM SHEET
 // ========================================================================
 
-const HERO_ACTIONS = [
-  { text: 'Select', className: 'select-btn', run: selectHero },
-  { text: 'Complete', className: 'complete-btn', run: toggleCompleted },
-  { text: 'Block', className: 'block-btn', run: toggleBlocked },
-];
-
-function CreateButtonContainer(hero) {
-  const container = document.createElement('div');
-  container.style.display = 'flex';
-  container.style.gap = '10px';
-
-  HERO_ACTIONS.forEach(({ text, className, run }) => {
-    const cell = document.createElement('div');
-    cell.className = `button-cell ${className}`;
-
-    const button = document.createElement('button');
-    button.textContent = text;
-
-    // Disable select button if hero is completed or blocked
-    const isDisabled = run === selectHero && (hero.isCompleted || hero.isBlocked);
-    if (isDisabled) {
-      button.disabled = true;
-      button.style.opacity = '0.5';
-    }
-
-    button.onclick = () => run(hero.name);
-
-    cell.appendChild(button);
-    container.appendChild(cell);
+function RenderTabs() {
+  document.querySelectorAll('.role-tab').forEach((tab) => {
+    tab.setAttribute('aria-pressed', String(tab.dataset.role === ui.role));
   });
-
-  return container;
+  const pool = heroes().filter((h) => ui.role === 'All' || h.role === ui.role);
+  $('role-progress-count').textContent = `${pool.filter((h) => h.isCompleted).length}/${pool.length}`;
 }
+
+function RenderTiles(shown) {
+  const grid = $('hero-tiles');
+  grid.textContent = '';
+  shown.forEach((hero) => grid.appendChild(CreateTile(hero)));
+}
+
+function CreateTile(hero) {
+  const tile = document.createElement('button');
+  tile.className = 'hero-tile';
+  tile.dataset.name = hero.name;
+  const state = hero.isBlocked ? 'blocked' : hero.isCompleted ? 'completed' : hero.isCurrent ? 'current' : '';
+  if (state) tile.classList.add(state);
+  const status = StatusOf(hero);
+  tile.setAttribute('aria-label', status === 'Available' ? hero.name : `${hero.name}, ${status.toLowerCase()}`);
+
+  const img = document.createElement('img');
+  img.src = HERO_ICON_PATH + hero.image;
+  img.alt = '';
+
+  const name = document.createElement('span');
+  name.className = 'tile-name';
+  name.textContent = hero.name;
+
+  const badge = document.createElement('span');
+  badge.className = 'tile-badge';
+  badge.setAttribute('aria-hidden', 'true');
+  badge.textContent = hero.isBlocked ? '✕' : hero.isCompleted ? '✓' : hero.isCurrent ? 'Now' : '';
+  badge.hidden = !badge.textContent;
+
+  tile.append(img, name, badge);
+  tile.addEventListener('click', () => OpenSheet(hero.name));
+  return tile;
+}
+
+function OpenSheet(name) {
+  ui.sheet = name;
+  RenderSheet();
+  const select = $('sheet-select');
+  (select.disabled ? $('sheet-complete') : select).focus();
+}
+
+function CloseSheet(returnFocus) {
+  const name = ui.sheet;
+  ui.sheet = null;
+  RenderSheet();
+  if (returnFocus && name) {
+    document.querySelector(`.hero-tile[data-name="${CSS.escape(name)}"]`)?.focus();
+  }
+}
+
+function RenderSheet() {
+  const hero = ui.sheet && isDock() ? heroes().find((h) => h.name === ui.sheet) : null;
+  if (!hero) ui.sheet = null;
+  $('sheet').hidden = !hero;
+  $('sheet-backdrop').hidden = !hero;
+  if (!hero) return;
+
+  $('sheet-img').src = HERO_ICON_PATH + hero.image;
+  $('sheet-name').textContent = hero.name;
+  $('sheet-select').disabled = hero.isCompleted || hero.isBlocked;
+  $('sheet-complete').textContent = hero.isCompleted ? 'Undo' : 'Complete';
+  $('sheet-block').textContent = hero.isBlocked ? 'Unblock' : 'Block';
+}
+
+function BindSheetActions() {
+  const act = (id, run) => $(id).addEventListener('click', () => {
+    const name = ui.sheet;
+    if (!name) return;
+    CloseSheet(false);
+    run(name);
+  });
+  act('sheet-select', selectHero);
+  act('sheet-complete', toggleCompleted);
+  act('sheet-block', toggleBlocked);
+}
+BindSheetActions();
 
 // ========================================================================
 // FOOTER ACTIONS
 // ========================================================================
 
+function RenderFooter() {
+  $('more-actions').classList.toggle('open', ui.menuOpen);
+  $('more-toggle').textContent = ui.menuOpen ? 'Close' : 'More';
+  $('more-toggle').setAttribute('aria-expanded', String(ui.menuOpen));
+}
+
 function SaveJSON() {
   const heroData = JSON.stringify(heroes(), null, 2);
   const blob = new Blob([heroData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  
+
   const link = document.createElement('a');
   link.href = url;
   link.download = 'OverwatchRoulette.json';
   link.click();
   link.remove();
-  
+
   setTimeout(() => URL.revokeObjectURL(url), 100);
   console.log('JSON saved');
 }
@@ -228,11 +425,11 @@ function LoadJSON() {
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = '.json';
-  
+
   fileInput.onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       // Parsing and validation happen inside the async callback, so the
@@ -254,7 +451,7 @@ function LoadJSON() {
 
     reader.readAsText(file);
   };
-  
+
   fileInput.click();
 }
 
@@ -276,5 +473,3 @@ async function ResetHeroes() {
 // ========================================================================
 
 document.addEventListener('DOMContentLoaded', Init);
-
-

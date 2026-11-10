@@ -1,5 +1,6 @@
 import { subscribe } from '../../store/core.js';
 import { currentHero } from '../../store/queries.js';
+import { watchSpin } from '../hero-wheel/spin-state.js';
 
 const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
 const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).href;
@@ -33,6 +34,7 @@ export function mountCurrentHero(el) {
   el.append(icon, info);
 
   function Render() {
+    if (spinning) return;
     const hero = currentHero();
     el.hidden = !hero;
     if (!hero) return;
@@ -46,6 +48,14 @@ export function mountCurrentHero(el) {
     streak.textContent = `Lost streak: ${hero.lost}`;
   }
 
+  // The page slides this view out while the hero wheel spins. Keep the old
+  // hero until the spin ends so the new one isn't shown early. watchSpin must
+  // subscribe before Render so `spinning` is already set when Render runs.
+  let spinning = false;
+  watchSpin((isSpinning) => {
+    spinning = isSpinning;
+    if (!spinning) Render();
+  });
   subscribe(Render);
   Render();
 }

@@ -1,54 +1,103 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Overwatch Hero Roulette</title>
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="index.css">
     <script type="module" src="index.js"></script>
   </head>
   <body>
-    <!-- Sticky Selected Hero Section (Top) -->
-    <header>
-      <div id="current-hero">
-        <div id="current-hero-info">
-          <div class="center">
-            <img id="current-hero-icon" style="width: 64px; height: auto;" />
+    <div id="app">
+      <!-- Current hero + search/filter (sticky) -->
+      <header id="header">
+        <div id="current-hero">
+          <div id="current-hero-info">
+            <img id="current-hero-icon" alt="">
+            <div id="current-hero-text">
+              <div id="current-hero-role">
+                <img id="current-hero-role-icon" alt="">
+                <span id="current-hero-role-name"></span>
+              </div>
+              <div id="current-hero-name"></div>
+              <div id="current-hero-streak"></div>
+            </div>
           </div>
-
-          <div class="center">
-            <img id="current-hero-role-icon" style="width: 24px; height: auto;" />
+          <div id="current-hero-results">
+            <button id="current-hero-win" class="btn btn-win">Win</button>
+            <button id="current-hero-lost" class="btn btn-lost">Lost</button>
           </div>
-
-          <div id="current-hero-name"/></div>
         </div>
-        <div id="current-hero-results">
-          <button id="current-hero-win">Win</button>
-          <button id="current-hero-lost">Lost</button>
+        <div id="banner" hidden>
+          <div id="banner-text">No hero selected</div>
+          <button id="banner-random" class="btn btn-primary">Select random hero</button>
+        </div>
+        <!-- Search + status filter -->
+        <div id="toolbar">
+          <input id="search" type="search" placeholder="Search heroes" aria-label="Search heroes by name" autocomplete="off">
+          <div id="filter-wrap">
+            <button id="filter-toggle" class="btn btn-outline" aria-haspopup="true" aria-expanded="false" aria-controls="filter-menu">
+              <span id="filter-label">Filter</span><span aria-hidden="true" class="caret">&#9662;</span>
+            </button>
+            <div id="filter-backdrop" class="backdrop-clear" hidden></div>
+            <div id="filter-menu" role="group" aria-label="Show heroes that are" hidden>
+              <label class="filter-option"><input type="checkbox" data-filter="available" style="accent-color: var(--cp-text)"><span>Available</span><span class="count" data-count="available"></span></label>
+              <label class="filter-option"><input type="checkbox" data-filter="completed" style="accent-color: var(--cp-green)"><span>Completed</span><span class="count" data-count="completed"></span></label>
+              <label class="filter-option"><input type="checkbox" data-filter="blocked" style="accent-color: var(--cp-red-soft)"><span>Blocked</span><span class="count" data-count="blocked"></span></label>
+              <button id="filter-clear" class="filter-clear">Clear filters</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+
+      <!-- Dock layout: role tabs -->
+      <nav id="role-tabs" aria-label="Filter heroes by role">
+        <div id="role-tab-list">
+          <button class="role-tab" data-role="All">All</button>
+          <button class="role-tab" data-role="Tank">Tank</button>
+          <button class="role-tab" data-role="Damage">Damage</button>
+          <button class="role-tab" data-role="Support">Support</button>
+        </div>
+        <div id="role-progress"><span id="role-progress-count"></span> done</div>
+      </nav>
+
+      <main>
+        <!-- Desktop and mobile: cards -->
+        <div id="hero-list"></div>
+        <!-- Dock: tiles -->
+        <div id="hero-tiles"></div>
+        <div id="no-match" hidden>No heroes match. Clear the search or change the filter.</div>
+      </main>
+
+      <footer id="footer">
+        <div id="more-actions">
+          <button id="load-json" class="btn btn-outline">Load JSON</button>
+          <button id="save-json" class="btn btn-outline">Save JSON</button>
+          <button id="reset" class="btn btn-outline">Reset</button>
+          <a href="obs_webviews/hero-status/hero-status.html" target="_blank" rel="noopener">Hero Status</a>
+          <a href="obs_webviews/hero-wheel/hero-wheel.html" target="_blank" rel="noopener">Hero Wheel</a>
+        </div>
+        <div id="footer-main">
+          <button id="select-random" class="btn btn-light">Select random hero</button>
+          <button id="more-toggle" class="btn btn-outline" aria-expanded="false" aria-controls="more-actions">More</button>
+        </div>
+      </footer>
+
+      <!-- Dock: bottom sheet for a tapped tile -->
+      <div id="sheet-backdrop" hidden></div>
+      <div id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-name" hidden>
+        <div id="sheet-head">
+          <img id="sheet-img" alt="">
+          <span id="sheet-name"></span>
+        </div>
+        <div id="sheet-actions">
+          <button id="sheet-select" class="btn sheet-btn sheet-select">Select</button>
+          <button id="sheet-complete" class="btn sheet-btn sheet-complete">Complete</button>
+          <button id="sheet-block" class="btn sheet-btn sheet-block">Block</button>
         </div>
       </div>
-      <div id="banner">
-        No more hero to select
-      </div>
-    </header>
-
-    <!-- Scrollable Hero Grid Container -->
-    <main class="hero-grid-container">
-      <div id="hero-list">
-      </div>
-      <!-- Buttons will be dynamically inserted at bottom of main -->
-    </main>
-
-    <!-- Footer with Action Buttons (Bottom) -->
-    <footer>
-      <div id="action-buttons" style="display: flex; gap: 8px;">
-        <button id="select-random">Select Random Hero</button>
-        <button id="load-json">Load JSON</button>
-        <button id="save-json">Save JSON</button>
-        <button id="reset">Reset</button>
-        <a href="obs_webviews/hero-status/hero-status.html" target="_blank">Hero Status</a>
-        <a href="obs_webviews/hero-wheel/hero-wheel.html" target="_blank">Hero Wheel</a>
-      </div>
-    </footer>
+    </div>
   </body>
 </html>
