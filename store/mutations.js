@@ -18,7 +18,7 @@ const updateHero = (list, name, change) =>
   list.map((h) => (h.name === name ? { ...h, ...change(h) } : h));
 
 // Makes `name` the only current hero; null clears the current hero.
-const setCurrent = (list, name) => list.map((h) => ({ ...h, isCurrent: h.name === name }));
+const setCurrent = (list, name) => list.map((h) => ({ ...h, currentLostStreak: 0, isCurrent: h.name === name }));
 
 function withRandomCurrent(list) {
   const pool = list.filter(isAvailable);
@@ -87,9 +87,9 @@ export const recordLoss = createMutation(() => {
   const list = heroes();
   const current = list.find((h) => h.isCurrent);
   if (!current) return;
-  const next = updateHero(list, current.name, (h) => ({ lost: h.lost + 1 }));
+  const next = updateHero(list, current.name, (h) => ({ lost: h.lost + 1 , currentLostStreak: h.currentLostStreak + 1 }));
   write(next);
-  console.log('[mutations:recordLoss]', current.name, JSON.stringify({ lost: findHero(next, current.name).lost }));
+  console.log('[mutations:recordLoss]', current.name, JSON.stringify({ lost: findHero(next, current.name).lost, currentLostStreak: findHero(next, current.name).currentLostStreak }));
 });
 
 // Replaces all hero state. Validates the shape; the caller picks a new current hero.

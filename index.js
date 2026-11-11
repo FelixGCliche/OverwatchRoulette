@@ -62,8 +62,8 @@ function ApplyLayout() {
 
 function BindControls() {
   const clicks = {
-    'current-hero-win': recordWin,
-    'current-hero-lost': recordLoss,
+    'current-hero-win-btn': recordWin,
+    'current-hero-lost-btn': recordLoss,
     'select-random': selectRandomHero,
     'banner-random': selectRandomHero,
     'load-json': LoadJSON,
@@ -117,7 +117,7 @@ async function Init() {
 
     subscribe(Render);
     ApplyLayout();
-    if (!currentHero()) selectRandomHero();
+    // if (!currentHero()) selectRandomHero();
 
   } catch (error) {
     console.error('Error loading hero data:', error);
@@ -239,7 +239,11 @@ function RenderCurrentHeroHeader() {
   $('current-hero-role-icon').src = ROLES_ICON_PATH + ROLES_ICONS[hero.role];
   $('current-hero-role-name').textContent = hero.role;
   $('current-hero-name').textContent = hero.name;
-  $('current-hero-streak').textContent = `Lost streak: ${hero.lost}`;
+  
+  // stats
+  $('current-hero-lost-streak').textContent = `Lost streak: ${hero.currentLostStreak}`;
+  $('current-hero-lost').textContent = `Lost: ${hero.lost}`;
+  $('current-hero-win').textContent = `Wins: ${hero.win ?? 0}`;
 }
 
 // ========================================================================
@@ -287,7 +291,7 @@ function CreateHeroCard(hero) {
   const actions = document.createElement('div');
   actions.className = 'card-actions';
   actions.append(
-    CreateActionButton('Select', 'btn card-select', () => selectHero(hero.name), hero.isCompleted || hero.isBlocked),
+    CreateActionButton('Select', 'btn card-select', () => selectHero(hero.name), hero.isBlocked),
     CreateActionButton(hero.isCompleted ? 'Undo' : 'Complete', 'btn btn-outline', () => toggleCompleted(hero.name)),
     CreateActionButton(hero.isBlocked ? 'Unblock' : 'Block', 'btn btn-outline', () => toggleBlocked(hero.name)),
   );
@@ -376,7 +380,7 @@ function RenderSheet() {
 
   $('sheet-img').src = HERO_ICON_PATH + hero.image;
   $('sheet-name').textContent = hero.name;
-  // $('sheet-select').disabled = hero.isCompleted || hero.isBlocked;
+  $('sheet-select').disabled = hero.isBlocked;
   $('sheet-complete').textContent = hero.isCompleted ? 'Undo' : 'Complete';
   $('sheet-block').textContent = hero.isBlocked ? 'Unblock' : 'Block';
 }
@@ -437,7 +441,6 @@ function LoadJSON() {
       try {
         const data = JSON.parse(event.target.result);
         importHeroes(data);
-        selectRandomHero();
         console.log('Heroes loaded:', data.length);
       } catch (error) {
         console.error('Error loading hero data:', error);
@@ -461,7 +464,6 @@ async function ResetHeroes() {
 
   try {
     await resetHeroes();
-    selectRandomHero();
   } catch (error) {
     console.error('Error resetting heroes:', error);
     alert('Failed to reset heroes. Please check that assets/heroes.json is reachable.');

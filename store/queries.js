@@ -3,6 +3,7 @@ import { read } from './storage.js';
 export const heroes = () => read() ?? [];
 
 export const currentHero = () => heroes().find((hero) => hero.isCurrent) ?? null;
+export const currentLostStreak = () => currentHero()?.currentLostStreak ?? 0;
 
 export const isAvailable = (hero) => !hero.isCompleted && !hero.isBlocked;
 

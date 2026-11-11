@@ -45,7 +45,7 @@ export function mountCurrentHero(el) {
     roleIcon.alt = hero.role;
     roleName.textContent = hero.role;
     name.textContent = hero.name;
-    streak.textContent = `Lost streak: ${hero.lost}`;
+    streak.textContent = `Lost streak: ${hero.currentLostStreak}`;
   }
 
   // The page slides this view out while the hero wheel spins. Keep the old
