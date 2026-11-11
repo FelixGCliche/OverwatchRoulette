@@ -1,4 +1,6 @@
 export const STORAGE_KEY = 'owr:v1:heroes';
+// Marker written when the wheel should spin; separate from which hero is current.
+export const SPIN_KEY = 'owr:v1:spin';
 
 // Resolved once. If localStorage is blocked (private mode, disabled site data),
 // fall back to memory so the app still works for the session, unsaved.

@@ -327,7 +327,7 @@ function CreateTile(hero) {
   const tile = document.createElement('button');
   tile.className = 'hero-tile';
   tile.dataset.name = hero.name;
-  const state = hero.isBlocked ? 'blocked' : hero.isCompleted ? 'completed' : hero.isCurrent ? 'current' : '';
+  const state = hero.isCurrent ? 'current' : hero.isBlocked ? 'blocked' : hero.isCompleted ? 'completed' : '';
   if (state) tile.classList.add(state);
   const status = StatusOf(hero);
   tile.setAttribute('aria-label', status === 'Available' ? hero.name : `${hero.name}, ${status.toLowerCase()}`);
@@ -343,7 +343,7 @@ function CreateTile(hero) {
   const badge = document.createElement('span');
   badge.className = 'tile-badge';
   badge.setAttribute('aria-hidden', 'true');
-  badge.textContent = hero.isBlocked ? '✕' : hero.isCompleted ? '✓' : hero.isCurrent ? 'Now' : '';
+  badge.textContent = hero.isCurrent ? 'Now' : hero.isBlocked ? '✕' : hero.isCompleted ? '✓' : '';
   badge.hidden = !badge.textContent;
 
   tile.append(img, name, badge);
@@ -376,7 +376,7 @@ function RenderSheet() {
 
   $('sheet-img').src = HERO_ICON_PATH + hero.image;
   $('sheet-name').textContent = hero.name;
-  $('sheet-select').disabled = hero.isCompleted || hero.isBlocked;
+  // $('sheet-select').disabled = hero.isCompleted || hero.isBlocked;
   $('sheet-complete').textContent = hero.isCompleted ? 'Undo' : 'Complete';
   $('sheet-block').textContent = hero.isBlocked ? 'Unblock' : 'Block';
 }
@@ -388,7 +388,7 @@ function BindSheetActions() {
     CloseSheet(false);
     run(name);
   });
-  act('sheet-select', selectHero);
+  act('sheet-select', (name) => selectHero(name, true));
   act('sheet-complete', toggleCompleted);
   act('sheet-block', toggleBlocked);
 }
