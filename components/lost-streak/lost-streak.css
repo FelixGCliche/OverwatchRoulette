@@ -1,0 +1,27 @@
+@font-face {
+  font-family: 'Big_Noodle';
+  src: url('../../assets/big_noodle_titling.ttf');
+}
+
+.lost-streak {
+  display: inline-flex;
+  align-items: baseline;
+  gap: calc(24 * var(--px));
+  padding: calc(32 * var(--px)) calc(48 * var(--px));
+  border-radius: calc(16 * var(--px));
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Big_Noodle', sans-serif;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.lost-streak-label {
+  font-size: calc(112 * var(--px));
+}
+
+.lost-streak-count {
+  font-size: calc(112 * var(--px));
+  color: var(--color-danger);
+}
