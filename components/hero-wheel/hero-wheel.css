@@ -10,7 +10,6 @@
   --end: calc(-9030 * var(--px));
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: calc(96 * var(--px));
   box-sizing: border-box;
   width: 100%;
@@ -86,13 +85,11 @@
 
 .spin-reveal {
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: calc(16 * var(--px));
-  min-width: 0;
-  /* padding: calc(32 * var(--px));
+  padding: calc(32 * var(--px));
   border-radius: calc(16 * var(--px));
-  background-color: var(--color-surface); */
+  background-color: var(--color-surface);
 }
 
 .spin-reveal[hidden] {
