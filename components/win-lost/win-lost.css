@@ -27,7 +27,6 @@
 
 .stat-label {
   font-size: calc(48 * var(--px));
-  opacity: 0.7;
 }
 
 .stat-value {
@@ -35,7 +34,7 @@
 }
 
 .stat-win {
-  color: var(--color-current);
+  color: var(--color-success);
 }
 
 .stat-lost {
