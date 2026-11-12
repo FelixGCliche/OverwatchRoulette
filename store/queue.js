@@ -7,6 +7,8 @@
 //          read as 'accepted'.
 //          kind is 'hero' (select the hero) or 'uncomplete' (clear the hero's
 //          completed flag); items stored before it existed read as 'hero'.
+//          An 'uncomplete' item never reaches the queue: accepting it clears
+//          the flag right away and drops it.
 //
 // Relay events arrive as pending: they show only on the dashboard, where the
 // streamer fixes the hero if needed and accepts (or declines, i.e. removes)
@@ -105,14 +107,10 @@ export const isSpinning = () => spinning;
 // An accepted item can be played once it has a hero that isn't blocked.
 export const kindOf = (item) => item.kind ?? 'hero';
 
-// An un-complete item needs a hero that is still completed; it doesn't spin
-// the wheel, so it can be played while one is running.
 export function canPlay(item) {
-  if (item.status !== 'accepted' || !item.hero) return false;
+  if (item.status !== 'accepted' || !item.hero || spinning) return false;
   const hero = heroes().find((h) => h.name === item.hero);
-  if (!hero) return false;
-  if (kindOf(item) === 'uncomplete') return hero.isCompleted;
-  return !spinning && !hero.isBlocked;
+  return !!hero && !hero.isBlocked;
 }
 
 // Builds a pending queue item from an incentive.redeemed relay event, matching
@@ -146,15 +144,28 @@ export function enqueue(item) {
   return true;
 }
 
-// A pending item can be accepted once it has a hero.
-export const canAccept = (item) => item.status === 'pending' && !!item.hero;
+// A pending item can be accepted once it has a hero; an un-complete request
+// also needs that hero to still be completed.
+export function canAccept(item) {
+  if (item.status !== 'pending' || !item.hero) return false;
+  if (kindOf(item) !== 'uncomplete') return true;
+  return !!heroes().find((h) => h.name === item.hero)?.isCompleted;
+}
 
-// Moves a pending item into the queue. Ignored when it can't be accepted.
+// Moves a pending item into the queue. An un-complete request is applied
+// instead: the hero's completed flag is cleared and the item is dropped.
+// Ignored when it can't be accepted.
 export function accept(eventId) {
   const state = readState();
   const item = state.items.find((i) => i.eventId === eventId);
   if (!item || !canAccept(item)) {
     console.log('[queue:accept]', eventId, 'ignored (missing, already accepted or unmatched)');
+    return;
+  }
+  if (kindOf(item) === 'uncomplete') {
+    clearCompleted(item.hero);
+    remove(eventId);
+    console.log('[queue:accept]', eventId, 'un-completed', item.hero);
     return;
   }
   writeState({ ...state, items: state.items.map((i) => (i.eventId === eventId ? { ...i, status: 'accepted' } : i)) });
@@ -197,8 +208,7 @@ export function play(eventId) {
     console.log('[queue:play]', eventId, 'ignored (pending, spinning, unmatched or blocked)');
     return null;
   }
-  if (kindOf(item) === 'uncomplete') clearCompleted(item.hero);
-  else selectHero(item.hero);
+  selectHero(item.hero);
   remove(eventId);
   return item.hero;
 }

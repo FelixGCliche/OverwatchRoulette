@@ -1,6 +1,6 @@
 import { subscribe as subscribeToHeroes } from '../../store/core.js';
 import { heroes } from '../../store/queries.js';
-import { queue, kindOf, subscribe as subscribeToQueue } from '../../store/queue.js';
+import { queue, subscribe as subscribeToQueue } from '../../store/queue.js';
 import { formatAmount } from '../../utils/format.js';
 
 const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
@@ -71,12 +71,6 @@ export function mountHeroQueue(el) {
 
     row.append(icon, text);
 
-    if (kindOf(item) === 'uncomplete') {
-      const badge = document.createElement('span');
-      badge.className = 'hero-queue-test hero-queue-uncomplete';
-      badge.textContent = 'Un-complete';
-      row.appendChild(badge);
-    }
     if (item.test) {
       const badge = document.createElement('span');
       badge.className = 'hero-queue-test';

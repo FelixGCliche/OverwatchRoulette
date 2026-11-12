@@ -574,17 +574,17 @@ function CreateQueueItem(item) {
   actions.appendChild(CreateHeroPicker(item));
   if (isPending) {
     actions.append(
-      CreateActionButton('Accept', 'btn queue-play', () => accept(item.eventId), !canAccept(item)),
+      CreateActionButton(
+        kindOf(item) === 'uncomplete' ? 'Un-complete' : 'Accept',
+        'btn queue-play',
+        () => accept(item.eventId),
+        !canAccept(item),
+      ),
       CreateActionButton('Decline', 'btn btn-outline', () => removeFromQueue(item.eventId)),
     );
   } else {
     actions.append(
-      CreateActionButton(
-        kindOf(item) === 'uncomplete' ? 'Un-complete' : 'Play',
-        'btn queue-play',
-        () => play(item.eventId),
-        !canPlay(item),
-      ),
+      CreateActionButton('Play', 'btn queue-play', () => play(item.eventId), !canPlay(item)),
       CreateActionButton('Remove', 'btn btn-outline', () => removeFromQueue(item.eventId)),
     );
   }
