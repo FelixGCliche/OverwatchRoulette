@@ -27,6 +27,7 @@ import {
   playNext,
   canPlay,
   canAccept,
+  kindOf,
   accept,
 } from './store/queue.js';
 import {
@@ -38,6 +39,9 @@ import {
   heroIncentiveId,
   saveHeroIncentiveId,
   watchHeroIncentiveId,
+  uncompleteIncentiveId,
+  saveUncompleteIncentiveId,
+  watchUncompleteIncentiveId,
 } from './relay/client.js';
 import { formatAmount } from './utils/format.js';
 
@@ -449,7 +453,7 @@ function ConnectRelay(url) {
   relay?.close();
   relay = connectRelay(url);
   relay.onStatus(RenderRelayStatus);
-  relay.onEvent((event) => enqueue(itemFromEvent(event)));
+  relay.onEvent((event, kind) => enqueue(itemFromEvent(event, kind)));
   RenderRelayStatus(relay.status());
 }
 
@@ -457,6 +461,10 @@ function InitRelay() {
   $('hero-incentive').value = heroIncentiveId() ?? '';
   watchHeroIncentiveId((id) => {
     $('hero-incentive').value = id ?? '';
+  });
+  $('uncomplete-incentive').value = uncompleteIncentiveId() ?? '';
+  watchUncompleteIncentiveId((id) => {
+    $('uncomplete-incentive').value = id ?? '';
   });
   $('relay-url').value = relayUrl() ?? '';
   ConnectRelay(relayUrl());
@@ -479,16 +487,18 @@ function SaveRelayUrl(e) {
   ConnectRelay(relayUrl());
 }
 
-// The relay client reads the ID at each event, so no reconnect is needed.
+// The relay client reads the IDs at each event, so no reconnect is needed.
 function SaveHeroIncentive(e) {
   e.preventDefault();
   try {
     saveHeroIncentiveId($('hero-incentive').value);
+    saveUncompleteIncentiveId($('uncomplete-incentive').value);
   } catch {
-    alert('Could not save the hero request incentive ID.');
+    alert('Could not save the incentive IDs.');
     return;
   }
   $('hero-incentive').value = heroIncentiveId() ?? '';
+  $('uncomplete-incentive').value = uncompleteIncentiveId() ?? '';
 }
 
 function RenderRelayStatus(status) {
@@ -539,6 +549,12 @@ function CreateQueueItem(item) {
   const name = document.createElement('span');
   name.className = 'queue-name';
   name.textContent = hero ? hero.name : 'No match';
+  if (kindOf(item) === 'uncomplete') {
+    const badge = document.createElement('span');
+    badge.className = 'queue-test queue-uncomplete';
+    badge.textContent = 'Un-complete';
+    name.appendChild(badge);
+  }
   if (item.test) {
     const badge = document.createElement('span');
     badge.className = 'queue-test';
@@ -563,7 +579,12 @@ function CreateQueueItem(item) {
     );
   } else {
     actions.append(
-      CreateActionButton('Play', 'btn queue-play', () => play(item.eventId), !canPlay(item)),
+      CreateActionButton(
+        kindOf(item) === 'uncomplete' ? 'Un-complete' : 'Play',
+        'btn queue-play',
+        () => play(item.eventId),
+        !canPlay(item),
+      ),
       CreateActionButton('Remove', 'btn btn-outline', () => removeFromQueue(item.eventId)),
     );
   }
@@ -591,8 +612,15 @@ function CreateHeroPicker(item) {
 
   const commit = () => {
     const name = heroes().find((h) => h.name.toLowerCase() === input.value.trim().toLowerCase())?.name;
-    if (name && name !== item.hero) setQueueHero(item.eventId, name);
-    else input.value = current;
+    if (name && name !== item.hero) {
+      try {
+        setQueueHero(item.eventId, name);
+      } catch (error) {
+        // An un-complete request only accepts completed heroes.
+        console.warn('[queue:setHero]', error.message);
+        input.value = current;
+      }
+    } else input.value = current;
   };
   input.addEventListener('focus', () => { input.value = ''; });
   input.addEventListener('change', commit);

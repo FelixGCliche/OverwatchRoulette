@@ -9,7 +9,7 @@ let client = null;
 function Connect(url) {
   client?.close();
   client = connectRelay(url);
-  client.onEvent((event) => enqueue(itemFromEvent(event)));
+  client.onEvent((event, kind) => enqueue(itemFromEvent(event, kind)));
 }
 
 try {
