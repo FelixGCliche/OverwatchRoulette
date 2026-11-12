@@ -71,6 +71,15 @@ export const toggleCompleted = createMutation((name) => {
   console.log('[mutations:toggleCompleted]', name, JSON.stringify({ isCompleted: hero.isCompleted }));
 });
 
+// Clears the completed flag (idempotent, unlike toggleCompleted). Win count
+// and the current hero are left as is.
+export const clearCompleted = createMutation((name) => {
+  const list = heroes();
+  findHero(list, name);
+  write(updateHero(list, name, () => ({ isCompleted: false })));
+  console.log('[mutations:clearCompleted]', name, JSON.stringify({ isCompleted: false }));
+});
+
 // Completes the current hero and counts the win. The current hero is left
 // as is; selecting the next one is a separate action.
 export const recordWin = createMutation(() => {

@@ -1,10 +1,12 @@
 // Hero request queue fed by donation events. Stored under its own key, apart
 // from the hero list, so isValidHeroList never sees it.
 //
-//   item = { eventId, hero, rawText, donor, amount, ts, test, status }
+//   item = { eventId, kind, hero, rawText, donor, amount, ts, test, status }
 //          hero is a roster name, or null when the message didn't match.
 //          status is 'pending' or 'accepted'; items stored before it existed
 //          read as 'accepted'.
+//          kind is 'hero' (select the hero) or 'uncomplete' (clear the hero's
+//          completed flag); items stored before it existed read as 'hero'.
 //
 // Relay events arrive as pending: they show only on the dashboard, where the
 // streamer fixes the hero if needed and accepts (or declines, i.e. removes)
@@ -20,7 +22,7 @@
 
 import { read, write, subscribe as subscribeToStorage } from './storage.js';
 import { heroes } from './queries.js';
-import { selectHero } from './mutations.js';
+import { selectHero, clearCompleted } from './mutations.js';
 import { matchHero } from './match-hero.js';
 import { watchSpin } from '../components/hero-wheel/spin-state.js';
 
@@ -29,6 +31,7 @@ export const QUEUE_KEY = 'owr:v1:queue';
 const HANDLED_LIMIT = 500;
 
 const STATUSES = ['pending', 'accepted'];
+const KINDS = ['hero', 'uncomplete'];
 
 const listeners = new Set();
 let storageSyncStarted = false;
@@ -43,7 +46,8 @@ const isValidItem = (item) =>
   (item.amount === null || Number.isFinite(item.amount)) &&
   typeof item.ts === 'string' &&
   typeof item.test === 'boolean' &&
-  (item.status === undefined || STATUSES.includes(item.status));
+  (item.status === undefined || STATUSES.includes(item.status)) &&
+  (item.kind === undefined || KINDS.includes(item.kind));
 
 const isValidState = (state) =>
   Array.isArray(state?.items) &&
@@ -99,19 +103,28 @@ export const pending = () => readState().items.filter((i) => i.status === 'pendi
 export const isSpinning = () => spinning;
 
 // An accepted item can be played once it has a hero that isn't blocked.
+export const kindOf = (item) => item.kind ?? 'hero';
+
+// An un-complete item needs a hero that is still completed; it doesn't spin
+// the wheel, so it can be played while one is running.
 export function canPlay(item) {
-  if (item.status !== 'accepted' || !item.hero || spinning) return false;
+  if (item.status !== 'accepted' || !item.hero) return false;
   const hero = heroes().find((h) => h.name === item.hero);
-  return !!hero && !hero.isBlocked;
+  if (!hero) return false;
+  if (kindOf(item) === 'uncomplete') return hero.isCompleted;
+  return !spinning && !hero.isBlocked;
 }
 
 // Builds a pending queue item from an incentive.redeemed relay event, matching
-// the donor's message against the current roster.
-export function itemFromEvent(event) {
+// the donor's message against the current roster (completed heroes only for
+// an 'uncomplete' request).
+export function itemFromEvent(event, kind = 'hero') {
   const rawText = event.data.message ?? '';
+  const roster = heroes().filter((h) => kind !== 'uncomplete' || h.isCompleted);
   return {
     eventId: event.id,
-    hero: matchHero(rawText, heroes().map((h) => h.name)),
+    kind,
+    hero: matchHero(rawText, roster.map((h) => h.name)),
     rawText,
     donor: event.data.displayName,
     amount: event.data.amount,
@@ -164,7 +177,11 @@ export function remove(eventId) {
 export function setHero(eventId, hero) {
   if (hero !== null && !heroes().some((h) => h.name === hero)) throw new Error(`Unknown hero "${hero}"`);
   const state = readState();
-  if (!state.items.some((i) => i.eventId === eventId)) return;
+  const item = state.items.find((i) => i.eventId === eventId);
+  if (!item) return;
+  if (hero !== null && kindOf(item) === 'uncomplete' && !heroes().find((h) => h.name === hero).isCompleted) {
+    throw new Error(`Hero "${hero}" is not completed`);
+  }
   writeState({ ...state, items: state.items.map((i) => (i.eventId === eventId ? { ...i, hero } : i)) });
   console.log('[queue:setHero]', eventId, hero ?? 'none');
 }
@@ -180,7 +197,8 @@ export function play(eventId) {
     console.log('[queue:play]', eventId, 'ignored (pending, spinning, unmatched or blocked)');
     return null;
   }
-  selectHero(item.hero);
+  if (kindOf(item) === 'uncomplete') clearCompleted(item.hero);
+  else selectHero(item.hero);
   remove(eventId);
   return item.hero;
 }
