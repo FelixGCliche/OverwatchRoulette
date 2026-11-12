@@ -7,7 +7,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Anran",
@@ -17,7 +18,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Ashe",
@@ -27,7 +29,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Baptiste",
@@ -37,7 +40,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Bastion",
@@ -47,7 +51,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Brigitte",
@@ -57,7 +62,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Cassidy",
@@ -67,7 +73,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "D.mon",
@@ -77,7 +84,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "D.Va",
@@ -87,7 +95,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Doctrine",
@@ -97,7 +106,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Domina",
@@ -107,7 +117,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Doomfist",
@@ -117,7 +128,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Echo",
@@ -127,7 +139,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Emre",
@@ -137,7 +150,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Freja",
@@ -147,7 +161,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Genji",
@@ -157,7 +172,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Hanzo",
@@ -167,7 +183,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Hazard",
@@ -177,7 +194,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Illari",
@@ -187,7 +205,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Jetpack Cat",
@@ -197,7 +216,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Junker Queen",
@@ -207,7 +227,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Junkrat",
@@ -217,7 +238,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Juno",
@@ -227,7 +249,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Kiriko",
@@ -237,7 +260,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Lifeweaver",
@@ -247,7 +271,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Lùcio",
@@ -257,7 +282,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Mauga",
@@ -267,7 +293,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Mei",
@@ -277,7 +304,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Mercy",
@@ -287,7 +315,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Mizuki",
@@ -297,7 +326,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Moira",
@@ -307,7 +337,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Orisa",
@@ -317,7 +348,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Pharah",
@@ -327,7 +359,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Ramattra",
@@ -337,7 +370,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Reaper",
@@ -347,7 +381,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Reinhardt",
@@ -357,7 +392,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Roadhog",
@@ -367,7 +403,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Shion",
@@ -377,7 +414,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Sierra",
@@ -387,7 +425,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Sigma",
@@ -397,7 +436,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Sojourn",
@@ -407,7 +447,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Soldier 76",
@@ -417,7 +458,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Sombra",
@@ -427,7 +469,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Symmetra",
@@ -437,7 +480,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Torbjörn",
@@ -447,7 +491,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Tracer",
@@ -457,7 +502,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Vendetta",
@@ -467,7 +513,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Venture",
@@ -477,7 +524,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Widowmaker",
@@ -487,7 +535,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Winston",
@@ -497,7 +546,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Wrecking Ball",
@@ -507,7 +557,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Wuyang",
@@ -517,7 +568,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Zarya",
@@ -527,7 +579,8 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     },
     {
         "name": "Zenyatta",
@@ -537,6 +590,7 @@
         "isCompleted": false,
         "isCurrent": false,
         "win": 0,
-        "lost": 0
+        "lost": 0,
+        "currentLostStreak": 0
     }
 ]

@@ -135,15 +135,20 @@ body.compact #current-hero, body.compact #banner { min-height: 0; }
   overflow-wrap: anywhere;
 }
 
-#current-hero-streak {
+#current-hero-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
   font-family: 'Big_Noodle', system-ui, sans-serif;
   font-size: 32px;
   letter-spacing: 0.04em;
   line-height: 1;
   color: var(--cp-muted);
+  padding: 12px 0;
 }
-body.compact #current-hero-streak { font-size: 22px; }
-body.dock #current-hero-streak { font-size: 18px; }
+body.compact #current-hero-stats { font-size: 22px; }
+body.dock #current-hero-stats { font-size: 18px; }
 
 #current-hero-results { display: flex; gap: 12px; }
 

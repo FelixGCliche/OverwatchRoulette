@@ -3,7 +3,7 @@
 // listeners are not notified. Heroes are addressed by name, not index.
 // Each mutation logs its own result as [mutations:<name>] ...
 
-import { write } from './storage.js';
+import { write, SPIN_KEY } from './storage.js';
 import { heroes, isAvailable } from './queries.js';
 import { createMutation, notify } from './core.js';
 import { loadSeed, isValidHeroList } from './seed.js';
@@ -18,7 +18,7 @@ const updateHero = (list, name, change) =>
   list.map((h) => (h.name === name ? { ...h, ...change(h) } : h));
 
 // Makes `name` the only current hero; null clears the current hero.
-const setCurrent = (list, name) => list.map((h) => ({ ...h, isCurrent: h.name === name }));
+const setCurrent = (list, name) => list.map((h) => ({ ...h, currentLostStreak: 0, isCurrent: h.name === name }));
 
 function withRandomCurrent(list) {
   const pool = list.filter(isAvailable);
@@ -28,27 +28,26 @@ function withRandomCurrent(list) {
 
 const currentName = (list) => list.find((h) => h.isCurrent)?.name ?? null;
 
+// Asks the wheel to spin. Call before writing the heroes: other tabs are
+// notified by the heroes write and read this marker then.
+const triggerSpin = () => write({ id: Date.now() + Math.random() }, SPIN_KEY);
+
 // Blocking or completing the current hero moves on to a random one.
 // Returns the toggled hero and, if the current hero changed, who is current now.
 function toggleFlag(name, flag) {
   const list = heroes();
-  findHero(list, name);
   let next = updateHero(list, name, (h) => ({ [flag]: !h[flag] }));
   const hero = findHero(next, name);
-  const movedOn = hero.isCurrent && !isAvailable(hero);
-  if (movedOn) next = withRandomCurrent(next);
   write(next);
-  return { hero, movedTo: movedOn ? currentName(next) : undefined };
+  return hero;
 }
 
-const movedOnText = (movedTo) =>
-  movedTo === undefined ? '' : `current -> ${movedTo ?? 'none'}`;
-
-// Completed and blocked heroes can't be selected; that's a silent no-op.
+// Blocked heroes can't be selected; that's a silent no-op.
 export const selectHero = createMutation((name) => {
   const list = heroes();
-  if (!isAvailable(findHero(list, name))) {
-    console.log('[mutations:selectHero]', name, 'ignored (completed or blocked)');
+  const hero = findHero(list, name);
+  if (hero.isBlocked) {
+    console.log('[mutations:selectHero]', name, 'ignored (blocked)');
     return;
   }
   write(setCurrent(list, name));
@@ -57,18 +56,19 @@ export const selectHero = createMutation((name) => {
 
 export const selectRandomHero = createMutation(() => {
   const next = withRandomCurrent(heroes());
+  triggerSpin();
   write(next);
   console.log('[mutations:selectRandomHero] current ->', currentName(next) ?? 'none');
 });
 
 export const toggleBlocked = createMutation((name) => {
-  const { hero, movedTo } = toggleFlag(name, 'isBlocked');
-  console.log('[mutations:toggleBlocked]', name, JSON.stringify({ isBlocked: hero.isBlocked }), movedOnText(movedTo));
+  const hero = toggleFlag(name, 'isBlocked');
+  console.log('[mutations:toggleBlocked]', name, JSON.stringify({ isBlocked: hero.isBlocked }));
 });
 
 export const toggleCompleted = createMutation((name) => {
-  const { hero, movedTo } = toggleFlag(name, 'isCompleted');
-  console.log('[mutations:toggleCompleted]', name, JSON.stringify({ isCompleted: hero.isCompleted }), movedOnText(movedTo));
+  const hero = toggleFlag(name, 'isCompleted');
+  console.log('[mutations:toggleCompleted]', name, JSON.stringify({ isCompleted: hero.isCompleted }));
 });
 
 // Completes the current hero and counts the win. The current hero is left
@@ -87,9 +87,9 @@ export const recordLoss = createMutation(() => {
   const list = heroes();
   const current = list.find((h) => h.isCurrent);
   if (!current) return;
-  const next = updateHero(list, current.name, (h) => ({ lost: h.lost + 1 }));
+  const next = updateHero(list, current.name, (h) => ({ lost: h.lost + 1 , currentLostStreak: h.currentLostStreak + 1 }));
   write(next);
-  console.log('[mutations:recordLoss]', current.name, JSON.stringify({ lost: findHero(next, current.name).lost }));
+  console.log('[mutations:recordLoss]', current.name, JSON.stringify({ lost: findHero(next, current.name).lost, currentLostStreak: findHero(next, current.name).currentLostStreak }));
 });
 
 // Replaces all hero state. Validates the shape; the caller picks a new current hero.

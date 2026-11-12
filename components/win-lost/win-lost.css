@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'Big_Noodle';
+  src: url('../../assets/big_noodle_titling.ttf');
+}
+
+.win-lost {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: calc(64 * var(--px));
+  padding: calc(32 * var(--px)) calc(48 * var(--px));
+  border-radius: calc(16 * var(--px));
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Big_Noodle', sans-serif;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.stat {
+  display: flex;
+  align-items: baseline;
+  gap: calc(24 * var(--px));
+}
+
+.stat-label {
+  font-size: calc(48 * var(--px));
+}
+
+.stat-value {
+  font-size: calc(112 * var(--px));
+}
+
+.stat-win {
+  color: var(--color-success);
+}
+
+.stat-lost {
+  color: var(--color-danger);
+}
