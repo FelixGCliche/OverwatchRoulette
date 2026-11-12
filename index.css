@@ -355,7 +355,7 @@ body.dock #current-hero-stats { font-size: 18px; }
 .queue-actions .btn { font-size: 14px; padding: 8px 12px; }
 .queue-play { background: var(--cp-text); color: var(--cp-bg); }
 .queue-play:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
-.queue-pick, #relay-url, #hero-incentive {
+.queue-pick, #relay-url, #hero-incentive, #uncomplete-incentive {
   min-height: 44px;
   padding: 0 10px;
   border: 1px solid var(--cp-line);
@@ -365,14 +365,16 @@ body.dock #current-hero-stats { font-size: 18px; }
   font-family: inherit;
   font-size: 14px;
 }
-.queue-pick:focus-visible, #relay-url:focus-visible, #hero-incentive:focus-visible, #relay-settings summary:focus-visible {
+.queue-pick:focus-visible, #relay-url:focus-visible, #hero-incentive:focus-visible, #uncomplete-incentive:focus-visible, #relay-settings summary:focus-visible {
   outline: 2px solid var(--cp-gold);
   outline-offset: 2px;
 }
 
 #relay-settings summary { font-size: 14px; color: var(--cp-link); cursor: pointer; }
 #relay-form, #incentive-form { display: flex; gap: 8px; margin-top: 8px; }
-#relay-url, #hero-incentive { flex: 1; min-width: 0; }
+#relay-url, #hero-incentive, #uncomplete-incentive { flex: 1; min-width: 0; }
+#incentive-form { flex-direction: column; }
+#incentive-form .btn { align-self: flex-end; }
 #relay-hint, #incentive-hint { margin-top: 6px; font-size: 12px; color: var(--cp-muted); }
 
 body.compact .queue-text { min-width: 0; flex-basis: calc(100% - 60px); }
