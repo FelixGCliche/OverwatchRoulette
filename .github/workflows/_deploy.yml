@@ -1,0 +1,71 @@
+# Reusable: assembles prod (/), dev (/dev/) and open dev-targeting PR previews (/pr-N/)
+# into one Pages artifact and deploys it. Pages hosts a single artifact per repo,
+# so every deploy rebuilds all three from their current refs.
+name: Deploy Pages (reusable)
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  pull-requests: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Assemble site
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+
+          # Production
+          git archive origin/main | tar -x -C _site
+
+          # Dev (branch may not exist yet)
+          if git ls-remote --exit-code --heads origin dev >/dev/null 2>&1; then
+            git fetch origin dev
+            mkdir -p _site/dev
+            git archive FETCH_HEAD | tar -x -C _site/dev
+          fi
+
+          # Previews: open same-repo PRs targeting dev
+          gh pr list --base dev --state open --json number,isCrossRepository \
+            --jq '.[] | select(.isCrossRepository | not) | .number' |
+          while read -r n; do
+            git fetch origin "refs/pull/${n}/head"
+            mkdir -p "_site/pr-${n}"
+            git archive FETCH_HEAD | tar -x -C "_site/pr-${n}"
+          done
+
+          # Strip repo-only files from every tree
+          for d in _site _site/dev _site/pr-*; do
+            [ -d "$d" ] || continue
+            rm -rf "$d/.github" "$d/.claude" "$d/docs" "$d"/*.md
+          done
+          find _site -maxdepth 2 -type d | sort
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
