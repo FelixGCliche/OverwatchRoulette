@@ -142,16 +142,12 @@ export function enqueue(item) {
   return true;
 }
 
-// A pending item can be accepted once it has a hero; an un-complete request
-// also needs that hero to still be completed.
-export function canAccept(item) {
-  if (item.status !== 'pending' || !item.hero) return false;
-  if (kindOf(item) !== 'uncomplete') return true;
-  return !!heroes().find((h) => h.name === item.hero)?.isCompleted;
-}
+// A pending item can be accepted once it has a hero.
+export const canAccept = (item) => item.status === 'pending' && !!item.hero;
 
 // Moves a pending item into the queue. An un-complete request is applied
-// instead: the hero's completed flag is cleared and the item is dropped.
+// instead: the hero's completed flag is cleared (a no-op if it isn't set) and
+// the item is dropped.
 // Ignored when it can't be accepted.
 export function accept(eventId) {
   const state = readState();

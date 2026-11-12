@@ -69,12 +69,12 @@ function createQueueItem(item) {
   const actions = el('div', 'queue-actions', {}, createHeroPicker(item));
   if (isPending) {
     actions.append(
-      createActionButton('Accept', 'btn queue-play', () => accept(item.eventId), !canAccept(item)),
+      createActionButton(isUncomplete ? 'Un-complete' : 'Accept', 'btn queue-play', () => accept(item.eventId), !canAccept(item)),
       createActionButton('Decline', 'btn btn-outline', () => removeFromQueue(item.eventId)),
     );
   } else {
     actions.append(
-      createActionButton(isUncomplete ? 'Un-complete' : 'Play', 'btn queue-play', () => play(item.eventId), !canPlay(item)),
+      createActionButton('Play', 'btn queue-play', () => play(item.eventId), !canPlay(item)),
       createActionButton('Remove', 'btn btn-outline', () => removeFromQueue(item.eventId)),
     );
   }
