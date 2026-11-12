@@ -114,15 +114,13 @@ export function canPlay(item) {
 }
 
 // Builds a pending queue item from an incentive.redeemed relay event, matching
-// the donor's message against the current roster (completed heroes only for
-// an 'uncomplete' request).
+// the donor's message against the current roster.
 export function itemFromEvent(event, kind = 'hero') {
   const rawText = event.data.message ?? '';
-  const roster = heroes().filter((h) => kind !== 'uncomplete' || h.isCompleted);
   return {
     eventId: event.id,
     kind,
-    hero: matchHero(rawText, roster.map((h) => h.name)),
+    hero: matchHero(rawText, heroes().map((h) => h.name)),
     rawText,
     donor: event.data.displayName,
     amount: event.data.amount,
@@ -188,11 +186,7 @@ export function remove(eventId) {
 export function setHero(eventId, hero) {
   if (hero !== null && !heroes().some((h) => h.name === hero)) throw new Error(`Unknown hero "${hero}"`);
   const state = readState();
-  const item = state.items.find((i) => i.eventId === eventId);
-  if (!item) return;
-  if (hero !== null && kindOf(item) === 'uncomplete' && !heroes().find((h) => h.name === hero).isCompleted) {
-    throw new Error(`Hero "${hero}" is not completed`);
-  }
+  if (!state.items.some((i) => i.eventId === eventId)) return;
   writeState({ ...state, items: state.items.map((i) => (i.eventId === eventId ? { ...i, hero } : i)) });
   console.log('[queue:setHero]', eventId, hero ?? 'none');
 }

@@ -20,15 +20,8 @@ export function createHeroPicker(item) {
 
   const commit = () => {
     const name = heroes().find((h) => h.name.toLowerCase() === input.value.trim().toLowerCase())?.name;
-    if (name && name !== item.hero) {
-      try {
-        setHero(item.eventId, name);
-      } catch (error) {
-        // An un-complete request only accepts completed heroes.
-        console.warn('[queue:setHero]', error.message);
-        input.value = current;
-      }
-    } else input.value = current;
+    if (name && name !== item.hero) setHero(item.eventId, name);
+    else input.value = current;
   };
   input.addEventListener('focus', () => { input.value = ''; });
   input.addEventListener('change', commit);
