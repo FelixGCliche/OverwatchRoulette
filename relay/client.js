@@ -4,9 +4,11 @@
 //   frames   { kind: 'hello', key } | { kind: 'replay', events } |
 //            { kind: 'event', event } | { kind: 'marks', marks }
 //
-// Only `incentive.redeemed` events for the hero request incentive saved on
-// the dashboard (`owr:v1:hero-incentive`) are passed on. With no saved ID,
-// none are, and redemptions received meanwhile are dropped. The ID is read
+// Only `incentive.redeemed` events for the two incentives saved on the
+// dashboard are passed on, tagged with a kind: the hero request incentive
+// (`owr:v1:hero-incentive`, 'hero') and the un-complete incentive
+// (`owr:v1:uncomplete-incentive`, 'uncomplete'). With no saved ID for a kind,
+// none are, and redemptions received meanwhile are dropped. The IDs are read
 // at each event, so a change applies live on every page of this origin.
 // Hello and marks frames are ignored. The client reconnects with exponential
 // backoff and resumes after the last event it saw (`&since=<id>`).
@@ -15,6 +17,7 @@ import { read, write, subscribe as subscribeToStorage } from '../store/storage.j
 
 export const RELAY_URL_KEY = 'owr:v1:relay';
 export const HERO_INCENTIVE_KEY = 'owr:v1:hero-incentive';
+export const UNCOMPLETE_INCENTIVE_KEY = 'owr:v1:uncomplete-incentive';
 
 const BACKOFF_BASE_MS = 1000;
 const BACKOFF_MAX_MS = 30000;
@@ -41,20 +44,37 @@ export function saveRelayUrl(url) {
 export const watchSavedRelayUrl = (onChange) =>
   subscribeToStorage((value) => onChange(typeof value === 'string' && value ? value : null), RELAY_URL_KEY);
 
-// The DonorDrive incentive whose redemptions are hero requests, or null.
-export function heroIncentiveId() {
-  const saved = read(HERO_INCENTIVE_KEY);
+const savedId = (key) => {
+  const saved = read(key);
   return typeof saved === 'string' && saved ? saved : null;
-}
+};
 
 // An empty value clears the saved ID.
-export function saveHeroIncentiveId(id) {
-  write(id.trim(), HERO_INCENTIVE_KEY);
-}
+const saveId = (id, key) => write(id.trim(), key);
 
 // Calls onChange(id) when another tab saves a new incentive ID. Returns unsubscribe.
-export const watchHeroIncentiveId = (onChange) =>
-  subscribeToStorage((value) => onChange(typeof value === 'string' && value ? value : null), HERO_INCENTIVE_KEY);
+const watchId = (onChange, key) =>
+  subscribeToStorage((value) => onChange(typeof value === 'string' && value ? value : null), key);
+
+// The DonorDrive incentive whose redemptions are hero requests, or null.
+export const heroIncentiveId = () => savedId(HERO_INCENTIVE_KEY);
+export const saveHeroIncentiveId = (id) => saveId(id, HERO_INCENTIVE_KEY);
+export const watchHeroIncentiveId = (onChange) => watchId(onChange, HERO_INCENTIVE_KEY);
+
+// The DonorDrive incentive whose redemptions ask to clear a hero's completed
+// state, or null.
+export const uncompleteIncentiveId = () => savedId(UNCOMPLETE_INCENTIVE_KEY);
+export const saveUncompleteIncentiveId = (id) => saveId(id, UNCOMPLETE_INCENTIVE_KEY);
+export const watchUncompleteIncentiveId = (onChange) => watchId(onChange, UNCOMPLETE_INCENTIVE_KEY);
+
+// 'hero' | 'uncomplete' for an incentive id matching a saved field, else null.
+// If both fields hold the same id, hero wins.
+function kindOf(incentiveId) {
+  if (!incentiveId) return null;
+  if (incentiveId === heroIncentiveId()) return 'hero';
+  if (incentiveId === uncompleteIncentiveId()) return 'uncomplete';
+  return null;
+}
 
 // Returns { url } or null when the URL can't be used. Query params are
 // kept but not read.
@@ -135,9 +155,9 @@ export function connectRelay(url) {
       }
       lastEventId = event.id;
       if (event.type !== 'incentive.redeemed') return;
-      const incentiveId = heroIncentiveId();
-      if (!incentiveId || event.data.incentiveId !== incentiveId) return;
-      eventListeners.forEach((listener) => listener(event));
+      const kind = kindOf(event.data.incentiveId);
+      if (!kind) return;
+      eventListeners.forEach((listener) => listener(event, kind));
     });
   }
 
@@ -174,7 +194,8 @@ export function connectRelay(url) {
 
   return {
     status: () => status,
-    // Calls listener(event) for each matching incentive.redeemed event. Returns unsubscribe.
+    // Calls listener(event, kind) for each matching incentive.redeemed event,
+    // kind being 'hero' or 'uncomplete'. Returns unsubscribe.
     onEvent(listener) {
       eventListeners.add(listener);
       return () => eventListeners.delete(listener);
