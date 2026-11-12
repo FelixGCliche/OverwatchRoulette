@@ -29,28 +29,7 @@ jobs:
         with:
           ref: main
 
-      - name: Assemble site
-        run: |
-          set -euo pipefail
-
-          # Export the fetched commit into $1, leaving out repo-only files.
-          export_tree() {
-            mkdir -p "$1"
-            git archive "$2" -- . ':!.github' ':!.claude' ':!docs' ':!*.md' | tar -x -C "$1"
-          }
-
-          export_tree _site HEAD
-
-          # Dev (branch may not exist yet)
-          if git fetch --depth=1 origin dev 2>/dev/null; then
-            export_tree _site/dev FETCH_HEAD
-          fi
-
-          # Previews: open same-repo PRs targeting dev
-          for n in $(gh pr list --base dev --state open --json number,isCrossRepository             --jq '.[] | select(.isCrossRepository | not) | .number'); do
-            git fetch --depth=1 origin "refs/pull/${n}/head"
-            export_tree "_site/pr-${n}" FETCH_HEAD
-          done
+      - uses: ./.github/actions/assemble-site
 
       - uses: actions/configure-pages@v5
 

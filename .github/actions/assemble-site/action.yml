@@ -1,0 +1,13 @@
+name: Assemble site
+description: Builds _site/ with prod (/), dev (/dev/) and open dev-targeting PR previews (/pr-N/).
+inputs:
+  output:
+    description: Output directory
+    default: _site
+runs:
+  using: composite
+  steps:
+    - run: node "$GITHUB_ACTION_PATH/index.js"
+      shell: bash
+      env:
+        OUTPUT_DIR: ${{ inputs.output }}
