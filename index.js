@@ -602,7 +602,8 @@ function CreateHeroPicker(item) {
   const input = document.createElement('input');
   input.type = 'search';
   input.className = 'queue-pick';
-  input.setAttribute('list', HeroNameList().id);
+  const uncomplete = kindOf(item) === 'uncomplete';
+  input.setAttribute('list', HeroNameList(uncomplete).id);
   input.setAttribute('aria-label', `Hero for ${item.donor}`);
   input.autocomplete = 'off';
   input.spellcheck = false;
@@ -611,12 +612,13 @@ function CreateHeroPicker(item) {
   input.placeholder = current || 'Search hero…';
 
   const commit = () => {
-    const name = heroes().find((h) => h.name.toLowerCase() === input.value.trim().toLowerCase())?.name;
+    const name = heroes()
+      .filter((h) => !uncomplete || h.isCompleted)
+      .find((h) => h.name.toLowerCase() === input.value.trim().toLowerCase())?.name;
     if (name && name !== item.hero) {
       try {
         setQueueHero(item.eventId, name);
       } catch (error) {
-        // An un-complete request only accepts completed heroes.
         console.warn('[queue:setHero]', error.message);
         input.value = current;
       }
@@ -636,15 +638,17 @@ function CreateHeroPicker(item) {
   return input;
 }
 
-// One shared <datalist> of roster names for every hero picker.
-function HeroNameList() {
-  let list = $('hero-names');
+// Shared <datalist>s of roster names for the hero pickers: every hero, or only
+// the completed ones for un-complete requests.
+function HeroNameList(completedOnly = false) {
+  const id = completedOnly ? 'hero-names-completed' : 'hero-names';
+  let list = $(id);
   if (!list) {
     list = document.createElement('datalist');
-    list.id = 'hero-names';
+    list.id = id;
     document.body.appendChild(list);
   }
-  const names = heroes().map((h) => h.name);
+  const names = heroes().filter((h) => !completedOnly || h.isCompleted).map((h) => h.name);
   if (list.options.length !== names.length || [...list.options].some((o, i) => o.value !== names[i])) {
     list.textContent = '';
     names.forEach((n) => list.appendChild(new Option(n, n)));
