@@ -1,9 +1,8 @@
 import { subscribe } from '../../store/core.js';
 import { heroes } from '../../store/queries.js';
 import { watchSpin } from '../hero-wheel/spin-state.js';
+import { heroIconUrl, roleIconUrl } from '../../utils/assets.js';
 
-const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
-const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).href;
 const ROLES = ['Tank', 'Damage', 'Support'];
 
 // Lucide "check" (https://lucide.dev/icons/check). Fetched as text and inlined
@@ -80,7 +79,7 @@ export function mountHeroGrid(grid) {
   function CreateRoleTitle(role) {
     const icon = document.createElement('img');
     icon.className = 'role-icon';
-    icon.src = `${ROLES_ICON_PATH}Role_${role}_Circle.svg`;
+    icon.src = roleIconUrl(role);
     icon.alt = role;
 
     const name = document.createElement('span');
@@ -122,7 +121,7 @@ export function mountHeroGrid(grid) {
   function CreateImage(hero) {
     const img = document.createElement('img');
     img.className = 'hero-image';
-    img.src = HERO_ICON_PATH + hero.image;
+    img.src = heroIconUrl(hero);
     img.alt = hero.name;
     return img;
   }

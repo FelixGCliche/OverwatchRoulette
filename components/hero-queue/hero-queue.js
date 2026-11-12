@@ -1,9 +1,9 @@
 import { subscribe as subscribeToHeroes } from '../../store/core.js';
-import { heroes } from '../../store/queries.js';
+import { heroByName } from '../../store/queries.js';
 import { queue, subscribe as subscribeToQueue } from '../../store/queue.js';
 import { formatAmount } from '../../utils/format.js';
+import { heroIconUrl } from '../../utils/assets.js';
 
-const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
 
 // Upcoming requests shown at once; the rest is summarized as "+N more".
 const MAX_SHOWN = 3;
@@ -33,9 +33,8 @@ export function mountHeroQueue(el) {
     list.textContent = '';
     if (items.length === 0) return;
 
-    const roster = heroes();
     items.slice(0, MAX_SHOWN).forEach((item) => {
-      list.appendChild(CreateItem(item, roster.find((h) => h.name === item.hero)));
+      list.appendChild(CreateItem(item, heroByName(item.hero)));
     });
     const hiddenCount = items.length - MAX_SHOWN;
     more.hidden = hiddenCount <= 0;
@@ -50,7 +49,7 @@ export function mountHeroQueue(el) {
     const icon = document.createElement(hero ? 'img' : 'div');
     icon.className = 'hero-queue-icon';
     if (hero) {
-      icon.src = HERO_ICON_PATH + hero.image;
+      icon.src = heroIconUrl(hero);
       icon.alt = hero.name;
     } else {
       icon.textContent = '?';

@@ -1,16 +1,10 @@
 @import url('../../components/hero-grid/hero-grid.css');
 @import url('../../components/current-hero/current-hero.css');
+@import url('../overlay.css');
 
-/* The OBS browser source's Width/Height *is* the viewport. */
 html,
 body {
-  width: 100vw;
-  height: 100vh;
-  max-height: 100vh;
-  margin: 0;
   padding-right: calc(8 * var(--px));
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0);
 }
 
 /* Docked right: slides off to the right while the hero wheel spins and back in
@@ -32,8 +26,7 @@ body.wheel-spinning main {
   }
 }
 
-/* Grid on top, current-hero banner below. Overrides the page-level `main`
-   rule that current-hero.css still carries from its standalone page. */
+/* Grid on top, current-hero banner below. */
 main {
   display: flex;
   flex-direction: column;
