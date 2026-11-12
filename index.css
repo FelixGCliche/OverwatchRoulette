@@ -256,6 +256,131 @@ body.dock #current-hero-stats { font-size: 18px; }
 }
 #role-progress-count { color: var(--cp-green); }
 
+/* ---------- hero request queue ---------- */
+#queue-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--cp-surface);
+}
+
+#queue-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#queue-title {
+  margin: 0;
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+#queue-play-next { margin-left: auto; }
+#queue-play-next:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
+
+#relay-status { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cp-muted); }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cp-muted); }
+#relay-status[data-status="open"] .status-dot { background: var(--cp-green); }
+#relay-status[data-status="connecting"] .status-dot,
+#relay-status[data-status="reconnecting"] .status-dot { background: var(--cp-gold); }
+#relay-status[data-status="closed"] .status-dot { background: var(--cp-red-soft); }
+
+#queue-pending-section { display: flex; flex-direction: column; gap: 8px; }
+#queue-pending-section[hidden] { display: none; }
+#queue-pending-title {
+  margin: 0;
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--cp-muted);
+}
+#queue-pending,
+#queue-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+#queue-empty { font-size: 14px; color: var(--cp-muted); }
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--cp-bg);
+}
+.queue-item.pending {
+  border: 1px dashed var(--cp-muted);
+  background: rgba(242, 239, 232, 0.04);
+}
+.queue-icon { flex: none; width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+.queue-item.unmatched .queue-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(242, 239, 232, 0.08);
+  font-size: 24px;
+  color: var(--cp-muted);
+}
+.queue-text { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 160px; }
+.queue-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+  font-size: 24px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+.queue-item.unmatched .queue-name { color: var(--cp-red-soft); }
+.queue-test {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--cp-gold);
+  color: var(--cp-bg);
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.queue-message, .queue-donor {
+  font-size: 13px;
+  color: var(--cp-muted);
+  overflow-wrap: anywhere;
+}
+
+.queue-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.queue-actions .btn { font-size: 14px; padding: 8px 12px; }
+.queue-play { background: var(--cp-text); color: var(--cp-bg); }
+.queue-play:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
+.queue-pick, #relay-url, #hero-incentive {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--cp-line);
+  border-radius: 8px;
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  font-family: inherit;
+  font-size: 14px;
+}
+.queue-pick:focus-visible, #relay-url:focus-visible, #hero-incentive:focus-visible, #relay-settings summary:focus-visible {
+  outline: 2px solid var(--cp-gold);
+  outline-offset: 2px;
+}
+
+#relay-settings summary { font-size: 14px; color: var(--cp-link); cursor: pointer; }
+#relay-form, #incentive-form { display: flex; gap: 8px; margin-top: 8px; }
+#relay-url, #hero-incentive { flex: 1; min-width: 0; }
+#relay-hint, #incentive-hint { margin-top: 6px; font-size: 12px; color: var(--cp-muted); }
+
+body.compact .queue-text { min-width: 0; flex-basis: calc(100% - 60px); }
+body.compact .queue-actions { width: 100%; }
+body.compact .queue-actions .btn, body.compact .queue-pick { flex: 1; }
+body.dock #queue-panel { padding: 8px; margin-bottom: 6px; }
+body.dock #queue-title { font-size: 24px; }
+
 /* ---------- hero cards (desktop / mobile) ---------- */
 main { flex: 1; min-height: 0; }
 

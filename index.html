@@ -72,6 +72,36 @@
       </nav>
 
       <main>
+        <!-- Hero requests from donations -->
+        <section id="queue-panel" aria-labelledby="queue-title">
+          <div id="queue-head">
+            <h2 id="queue-title">Hero requests</h2>
+            <span id="relay-status" data-status="closed" role="status">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="relay-status-text">Not connected</span>
+            </span>
+            <button id="queue-play-next" class="btn btn-light">Play next</button>
+          </div>
+          <div id="queue-pending-section" hidden>
+            <h3 id="queue-pending-title">Pending <span id="queue-pending-count"></span></h3>
+            <ol id="queue-pending"></ol>
+          </div>
+          <ol id="queue-list"></ol>
+          <div id="queue-empty">No hero requests yet.</div>
+          <details id="relay-settings">
+            <summary>Connection</summary>
+            <form id="relay-form">
+              <input id="relay-url" type="password" placeholder="wss://…/api/channel/…" aria-label="Connection URL" autocomplete="off" spellcheck="false">
+              <button class="btn btn-outline" type="submit">Save</button>
+            </form>
+            <div id="relay-hint">Keep this URL private, it contains your dock key.</div>
+            <form id="incentive-form">
+              <input id="hero-incentive" type="text" placeholder="Hero request incentive ID" aria-label="Hero request incentive ID" autocomplete="off" spellcheck="false">
+              <button class="btn btn-outline" type="submit">Save</button>
+            </form>
+            <div id="incentive-hint">Copy the ID from the DonorDrive dock's setup page.</div>
+          </details>
+        </section>
         <!-- Desktop and mobile: cards -->
         <div id="hero-list"></div>
         <!-- Dock: tiles -->
@@ -87,6 +117,7 @@
           <a href="obs_webviews/hero-status/hero-status.html" target="_blank" rel="noopener">Hero Status</a>
           <a href="obs_webviews/hero-wheel/hero-wheel.html" target="_blank" rel="noopener">Hero Wheel</a>
           <a href="obs_webviews/win-lost/win-lost.html" target="_blank" rel="noopener">Win / Lost</a>
+          <a href="obs_webviews/hero-queue/hero-queue.html" target="_blank" rel="noopener">Hero Queue</a>
         </div>
         <div id="footer-main">
           <button id="select-random" class="btn btn-light">Select random hero</button>

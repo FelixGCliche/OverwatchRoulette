@@ -15,6 +15,31 @@ import {
   recordWin,
   recordLoss,
 } from './store/mutations.js';
+import {
+  queue,
+  pending,
+  subscribe as subscribeToQueue,
+  enqueue,
+  itemFromEvent,
+  remove as removeFromQueue,
+  setHero as setQueueHero,
+  play,
+  playNext,
+  canPlay,
+  canAccept,
+  accept,
+} from './store/queue.js';
+import {
+  connectRelay,
+  relayUrl,
+  hasRelayParam,
+  saveRelayUrl,
+  watchSavedRelayUrl,
+  heroIncentiveId,
+  saveHeroIncentiveId,
+  watchHeroIncentiveId,
+} from './relay/client.js';
+import { formatAmount } from './utils/format.js';
 
 const HERO_ICON_PATH = `assets/heroes_images/`;
 const ROLES_ICON_PATH = `assets/roles_icons/`;
@@ -74,6 +99,7 @@ function BindControls() {
     'filter-clear': ClearFilters,
     'more-toggle': () => { ui.menuOpen = !ui.menuOpen; RenderFooter(); },
     'sheet-backdrop': () => CloseSheet(true),
+    'queue-play-next': playNext,
   };
   for (const [id, handler] of Object.entries(clicks)) {
     $(id).addEventListener('click', handler);
@@ -104,6 +130,9 @@ function BindControls() {
     else if (ui.filterOpen) SetFilterOpen(false, true);
   });
 
+  $('relay-form').addEventListener('submit', SaveRelayUrl);
+  $('incentive-form').addEventListener('submit', SaveHeroIncentive);
+
   mobileQuery.addEventListener('change', ApplyLayout);
   dockQuery.addEventListener('change', ApplyLayout);
 }
@@ -116,8 +145,11 @@ async function Init() {
     console.log('Heroes loaded:', heroes().length);
 
     subscribe(Render);
+    subscribeToQueue(RenderQueue);
     ApplyLayout();
     // if (!currentHero()) selectRandomHero();
+
+    InitRelay();
 
   } catch (error) {
     console.error('Error loading hero data:', error);
@@ -137,6 +169,7 @@ function Render() {
   RenderCurrentHeroHeader();
   RenderFilter();
   RenderLists();
+  RenderQueue();
   RenderFooter();
 }
 
@@ -397,6 +430,199 @@ function BindSheetActions() {
   act('sheet-block', toggleBlocked);
 }
 BindSheetActions();
+
+// ========================================================================
+// HERO REQUEST QUEUE (donations via the relay)
+// ========================================================================
+
+const RELAY_STATUS_TEXT = {
+  connecting: 'Connecting',
+  open: 'Live',
+  reconnecting: 'Reconnecting',
+  closed: 'Not connected',
+};
+
+let relay = null;
+
+// Every page that connects enqueues what it receives; enqueue drops duplicates.
+function ConnectRelay(url) {
+  relay?.close();
+  relay = connectRelay(url);
+  relay.onStatus(RenderRelayStatus);
+  relay.onEvent((event) => enqueue(itemFromEvent(event)));
+  RenderRelayStatus(relay.status());
+}
+
+function InitRelay() {
+  $('hero-incentive').value = heroIncentiveId() ?? '';
+  watchHeroIncentiveId((id) => {
+    $('hero-incentive').value = id ?? '';
+  });
+  $('relay-url').value = relayUrl() ?? '';
+  ConnectRelay(relayUrl());
+  if (!hasRelayParam()) {
+    watchSavedRelayUrl((url) => {
+      $('relay-url').value = url ?? '';
+      ConnectRelay(url);
+    });
+  }
+}
+
+function SaveRelayUrl(e) {
+  e.preventDefault();
+  try {
+    saveRelayUrl($('relay-url').value);
+  } catch {
+    alert('Invalid connection URL. It should look like wss://<host>/api/channel/<key>.');
+    return;
+  }
+  ConnectRelay(relayUrl());
+}
+
+// The relay client reads the ID at each event, so no reconnect is needed.
+function SaveHeroIncentive(e) {
+  e.preventDefault();
+  try {
+    saveHeroIncentiveId($('hero-incentive').value);
+  } catch {
+    alert('Could not save the hero request incentive ID.');
+    return;
+  }
+  $('hero-incentive').value = heroIncentiveId() ?? '';
+}
+
+function RenderRelayStatus(status) {
+  $('relay-status').dataset.status = status;
+  $('relay-status-text').textContent = RELAY_STATUS_TEXT[status];
+}
+
+// Pending requests sit above the queue until accepted or declined; only the
+// accepted queue reaches the overlay.
+function RenderQueue() {
+  const items = queue();
+  const waiting = pending();
+
+  const pendingList = $('queue-pending');
+  pendingList.textContent = '';
+  waiting.forEach((item) => pendingList.appendChild(CreateQueueItem(item)));
+  $('queue-pending-count').textContent = `(${waiting.length})`;
+  $('queue-pending-section').hidden = waiting.length === 0;
+
+  const list = $('queue-list');
+  list.textContent = '';
+  items.forEach((item) => list.appendChild(CreateQueueItem(item)));
+  $('queue-empty').hidden = items.length > 0 || waiting.length > 0;
+  $('queue-play-next').disabled = !items.some(canPlay);
+}
+
+function CreateQueueItem(item) {
+  const hero = heroes().find((h) => h.name === item.hero);
+
+  const row = document.createElement('li');
+  const isPending = item.status === 'pending';
+  row.className = 'queue-item';
+  row.classList.toggle('unmatched', !hero);
+  row.classList.toggle('pending', isPending);
+
+  const icon = document.createElement(hero ? 'img' : 'div');
+  icon.className = 'queue-icon';
+  if (hero) {
+    icon.src = HERO_ICON_PATH + hero.image;
+    icon.alt = '';
+  } else {
+    icon.textContent = '?';
+    icon.setAttribute('aria-hidden', 'true');
+  }
+
+  const text = document.createElement('div');
+  text.className = 'queue-text';
+  const name = document.createElement('span');
+  name.className = 'queue-name';
+  name.textContent = hero ? hero.name : 'No match';
+  if (item.test) {
+    const badge = document.createElement('span');
+    badge.className = 'queue-test';
+    badge.textContent = 'Test';
+    name.appendChild(badge);
+  }
+  const message = document.createElement('span');
+  message.className = 'queue-message';
+  message.textContent = item.rawText ? `“${item.rawText}”` : 'No message';
+  const donor = document.createElement('span');
+  donor.className = 'queue-donor';
+  donor.textContent = [item.donor, formatAmount(item.amount)].filter(Boolean).join(' · ');
+  text.append(name, message, donor);
+
+  const actions = document.createElement('div');
+  actions.className = 'queue-actions';
+  actions.appendChild(CreateHeroPicker(item));
+  if (isPending) {
+    actions.append(
+      CreateActionButton('Accept', 'btn queue-play', () => accept(item.eventId), !canAccept(item)),
+      CreateActionButton('Decline', 'btn btn-outline', () => removeFromQueue(item.eventId)),
+    );
+  } else {
+    actions.append(
+      CreateActionButton('Play', 'btn queue-play', () => play(item.eventId), !canPlay(item)),
+      CreateActionButton('Remove', 'btn btn-outline', () => removeFromQueue(item.eventId)),
+    );
+  }
+
+  row.append(icon, text, actions);
+  return row;
+}
+
+// Searchable hero picker shown on every item. It shows the item's hero, or
+// prompts for a pick when nothing matched. On focus the box is emptied (the
+// current hero stays as the placeholder) so the suggestion list shows every
+// hero; typing filters it. Picking a roster name saves it; anything else
+// restores the current hero on blur.
+function CreateHeroPicker(item) {
+  const input = document.createElement('input');
+  input.type = 'search';
+  input.className = 'queue-pick';
+  input.setAttribute('list', HeroNameList().id);
+  input.setAttribute('aria-label', `Hero for ${item.donor}`);
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+  const current = item.hero ?? '';
+  input.value = current;
+  input.placeholder = current || 'Search hero…';
+
+  const commit = () => {
+    const name = heroes().find((h) => h.name.toLowerCase() === input.value.trim().toLowerCase())?.name;
+    if (name && name !== item.hero) setQueueHero(item.eventId, name);
+    else input.value = current;
+  };
+  input.addEventListener('focus', () => { input.value = ''; });
+  input.addEventListener('change', commit);
+  // Choosing a suggestion replaces the text in one step; save it right away.
+  input.addEventListener('input', (e) => {
+    if (e.inputType === 'insertReplacementText' || e.inputType === undefined) commit();
+  });
+  input.addEventListener('blur', () => { if (input.value !== current) commit(); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.value = current; input.blur(); }
+  });
+  return input;
+}
+
+// One shared <datalist> of roster names for every hero picker.
+function HeroNameList() {
+  let list = $('hero-names');
+  if (!list) {
+    list = document.createElement('datalist');
+    list.id = 'hero-names';
+    document.body.appendChild(list);
+  }
+  const names = heroes().map((h) => h.name);
+  if (list.options.length !== names.length || [...list.options].some((o, i) => o.value !== names[i])) {
+    list.textContent = '';
+    names.forEach((n) => list.appendChild(new Option(n, n)));
+  }
+  return list;
+}
 
 // ========================================================================
 // FOOTER ACTIONS
