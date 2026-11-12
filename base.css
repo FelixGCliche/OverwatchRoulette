@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'Big_Noodle';
+  src: url('assets/big_noodle_titling.ttf');
+}
+
 /* ========================================================================
    SHARED BASE
    Design tokens and resets loaded by every page. --px equals 1px when the

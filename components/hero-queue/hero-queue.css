@@ -1,0 +1,98 @@
+.hero-queue {
+  display: flex;
+  flex-direction: column;
+  gap: calc(16 * var(--px));
+  padding: calc(32 * var(--px));
+  border-radius: calc(16 * var(--px));
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Big_Noodle', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* display:flex above would otherwise beat the [hidden] attribute */
+.hero-queue[hidden],
+.hero-queue-more[hidden] {
+  display: none;
+}
+
+.hero-queue-title {
+  font-size: calc(64 * var(--px));
+  line-height: 1;
+}
+
+.hero-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(12 * var(--px));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-queue-item {
+  display: flex;
+  align-items: center;
+  gap: calc(20 * var(--px));
+  min-width: 0;
+}
+
+.hero-queue-icon {
+  flex: none;
+  width: calc(96 * var(--px));
+  height: calc(96 * var(--px));
+  object-fit: cover;
+  border-radius: calc(8 * var(--px));
+}
+
+/* the first request is up next */
+.hero-queue-item:first-child .hero-queue-icon {
+  outline: calc(4 * var(--px)) solid var(--color-current);
+  outline-offset: calc(4 * var(--px));
+}
+
+.hero-queue-item.unmatched .hero-queue-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-text-faint);
+  font-size: calc(64 * var(--px));
+}
+
+.hero-queue-text {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--px));
+  min-width: 0;
+}
+
+.hero-queue-name {
+  font-size: calc(56 * var(--px));
+  line-height: 1;
+}
+
+.hero-queue-donor {
+  font-size: calc(36 * var(--px));
+  line-height: 1;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-queue-test {
+  margin-left: auto;
+  padding: calc(4 * var(--px)) calc(12 * var(--px));
+  border-radius: calc(8 * var(--px));
+  background-color: var(--color-current);
+  color: rgba(21, 24, 28, 1);
+  font-size: calc(32 * var(--px));
+  line-height: 1;
+}
+
+.hero-queue-more {
+  font-size: calc(36 * var(--px));
+  line-height: 1;
+  opacity: 0.7;
+}

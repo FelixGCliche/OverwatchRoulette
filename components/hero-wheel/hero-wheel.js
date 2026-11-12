@@ -1,9 +1,8 @@
 import { subscribe } from '../../store/core.js';
-import { availableHeroes, currentHero, heroes } from '../../store/queries.js';
+import { availableHeroes, currentHero, heroByName, heroes } from '../../store/queries.js';
 import { watchSpin } from './spin-state.js';
+import { heroIconUrl, roleIconUrl } from '../../utils/assets.js';
 
-const HERO_ICON_PATH = new URL('../../assets/heroes_images/', import.meta.url).href;
-const ROLES_ICON_PATH = new URL('../../assets/roles_icons/', import.meta.url).href;
 
 // Tiles on the reel. Tile 0 is the previously shown hero (the reel starts there)
 // and FINAL is the winner; --end in the CSS is derived from FINAL.
@@ -65,7 +64,7 @@ export function mountHeroWheel(root) {
         const img = document.createElement('img');
         img.className = 'spin-tile';
         img.alt = '';
-        img.src = HERO_ICON_PATH + hero.image;
+        img.src = heroIconUrl(hero);
         return img;
       }),
     );
@@ -74,7 +73,7 @@ export function mountHeroWheel(root) {
   function showHero(hero) {
     reveal.hidden = !hero;
     if (!hero) return;
-    roleIcon.src = `${ROLES_ICON_PATH}Role_${hero.role}_Circle.svg`;
+    roleIcon.src = roleIconUrl(hero.role);
     roleName.textContent = hero.role;
     name.textContent = hero.name;
   }
@@ -85,7 +84,7 @@ export function mountHeroWheel(root) {
 
     if (nextName === shownName && started) return;
 
-    const previous = heroes().find((h) => h.name === shownName) ?? null;
+    const previous = heroByName(shownName) ?? null;
     shownName = nextName;
     const firstRender = !started;
     started = true;
@@ -116,9 +115,7 @@ export function mountHeroWheel(root) {
     if (spinning) {
       scene.classList.remove('leaving');
       root.hidden = false;
-    } else if (root.hidden) {
-      // Initial state or no hero: nothing to fade.
-    } else {
+    } else if (!root.hidden) {
       scene.classList.add('leaving');
       hideTimer = setTimeout(() => {
         root.hidden = true;

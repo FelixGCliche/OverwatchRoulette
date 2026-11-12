@@ -1,14 +1,9 @@
 /** ============================================================
   CONTROL PANEL
-  Layouts: desktop (default), body.compact (mobile / dock),
-  body.dock (narrow OBS dock, tiles + role tabs + bottom sheet).
+  One layout; at <= 480px the hero cards swap for tiles + role tabs +
+  a bottom sheet (see the SMALL VIEWPORTS block at the end).
   Tokens live in base.css (--cp-*).
   ============================================================ */
-
-@font-face {
-  font-family: 'Big_Noodle';
-  src: url('assets/big_noodle_titling.ttf');
-}
 
 [hidden] { display: none !important; }
 
@@ -103,7 +98,6 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 
 #current-hero-info { display: flex; align-items: center; gap: 32px; min-width: 0; }
 #current-hero { min-height: 160px; }
-body.compact #current-hero, body.compact #banner { min-height: 0; }
 
 #current-hero-icon {
   width: 160px;
@@ -147,8 +141,6 @@ body.compact #current-hero, body.compact #banner { min-height: 0; }
   color: var(--cp-muted);
   padding: 12px 0;
 }
-body.compact #current-hero-stats { font-size: 22px; }
-body.dock #current-hero-stats { font-size: 18px; }
 
 #current-hero-results { display: flex; gap: 12px; }
 
@@ -231,7 +223,7 @@ body.dock #current-hero-stats { font-size: 18px; }
   cursor: pointer;
 }
 
-/* ---------- role tabs (dock) ---------- */
+/* ---------- role tabs (small viewports) ---------- */
 #role-tabs { display: none; align-items: center; gap: 8px; }
 #role-tab-list { display: flex; flex: 1; gap: 4px; min-width: 0; }
 .role-tab {
@@ -256,7 +248,128 @@ body.dock #current-hero-stats { font-size: 18px; }
 }
 #role-progress-count { color: var(--cp-green); }
 
-/* ---------- hero cards (desktop / mobile) ---------- */
+/* ---------- hero request queue ---------- */
+#queue-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--cp-surface);
+}
+
+#queue-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#queue-title {
+  margin: 0;
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+#queue-play-next { margin-left: auto; }
+#queue-play-next:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
+
+#relay-status { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cp-muted); }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cp-muted); }
+#relay-status[data-status="open"] .status-dot { background: var(--cp-green); }
+#relay-status[data-status="connecting"] .status-dot,
+#relay-status[data-status="reconnecting"] .status-dot { background: var(--cp-gold); }
+#relay-status[data-status="closed"] .status-dot { background: var(--cp-red-soft); }
+
+#queue-pending-section { display: flex; flex-direction: column; gap: 8px; }
+#queue-pending-section[hidden] { display: none; }
+#queue-pending-title {
+  margin: 0;
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--cp-muted);
+}
+#queue-pending,
+#queue-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+#queue-empty { font-size: 14px; color: var(--cp-muted); }
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--cp-bg);
+}
+.queue-item.pending {
+  border: 1px dashed var(--cp-muted);
+  background: rgba(242, 239, 232, 0.04);
+}
+.queue-icon { flex: none; width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+.queue-item.unmatched .queue-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(242, 239, 232, 0.08);
+  font-size: 24px;
+  color: var(--cp-muted);
+}
+.queue-text { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 160px; }
+.queue-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Big_Noodle', system-ui, sans-serif;
+  font-size: 24px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+.queue-item.unmatched .queue-name { color: var(--cp-red-soft); }
+.queue-test {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--cp-gold);
+  color: var(--cp-bg);
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.queue-message, .queue-donor {
+  font-size: 13px;
+  color: var(--cp-muted);
+  overflow-wrap: anywhere;
+}
+
+.queue-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.queue-actions .btn { font-size: 14px; padding: 8px 12px; }
+.queue-play { background: var(--cp-text); color: var(--cp-bg); }
+.queue-play:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
+.queue-pick, #relay-url, #hero-incentive, #uncomplete-incentive {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--cp-line);
+  border-radius: 8px;
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  font-family: inherit;
+  font-size: 14px;
+}
+.queue-pick:focus-visible, #relay-url:focus-visible, #hero-incentive:focus-visible, #uncomplete-incentive:focus-visible, #relay-settings summary:focus-visible {
+  outline: 2px solid var(--cp-gold);
+  outline-offset: 2px;
+}
+
+#relay-settings summary { font-size: 14px; color: var(--cp-link); cursor: pointer; }
+#relay-form, #incentive-form { display: flex; gap: 8px; margin-top: 8px; }
+#relay-url, #hero-incentive, #uncomplete-incentive { flex: 1; min-width: 0; }
+#incentive-form { flex-direction: column; }
+#incentive-form .btn { align-self: flex-end; }
+#relay-hint, #incentive-hint { margin-top: 6px; font-size: 12px; color: var(--cp-muted); }
+
+/* ---------- hero cards ---------- */
 main { flex: 1; min-height: 0; }
 
 #hero-list { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
@@ -296,7 +409,8 @@ main { flex: 1; min-height: 0; }
 .card-actions .card-select { flex: 1; background: var(--cp-text); color: var(--cp-bg); }
 .card-actions .card-select:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
 
-#no-match {
+#no-match,
+.no-match {
   padding: 24px 8px;
   text-align: center;
   font-size: 14px;
@@ -305,95 +419,25 @@ main { flex: 1; min-height: 0; }
 
 /* ---------- footer ---------- */
 #footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
   display: flex;
   flex-direction: row-reverse;
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
   align-items: center;
+  margin: 0 -16px -16px;
   padding: 16px;
+  background: var(--cp-bg);
   border-top: 1px solid rgba(242, 239, 232, 0.12);
 }
 #footer-main { display: flex; gap: 8px; }
 #more-toggle { display: none; }
 #more-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
 
-/* ============================================================
-   COMPACT (mobile and dock)
-   ============================================================ */
-body.compact #app { padding: 12px; gap: 12px; max-width: 390px; }
-
-body.compact #header {
-  padding: 12px;
-  gap: 12px;
-  box-shadow: 0 0 0 12px var(--cp-bg);
-}
-body.compact #current-hero { flex-direction: column; align-items: stretch; gap: 12px; }
-body.compact #current-hero-info { gap: 14px; }
-body.compact #current-hero-icon { width: 72px; outline-offset: 3px; }
-body.compact #current-hero-role { font-size: 22px; }
-body.compact #current-hero-role-icon { width: 22px; height: 22px; }
-body.compact #current-hero-name { font-size: 44px; }
-body.compact #current-hero-results { gap: 12px; }
-body.compact #current-hero-results .btn { flex: 1; min-height: 48px; padding: 10px 16px; }
-body.compact #banner { flex-direction: column; align-items: stretch; gap: 12px; }
-body.compact #banner-text { font-size: 36px; }
-body.compact #banner-random { min-height: 52px; padding: 10px 16px; font-size: 16px; }
-
-body.compact .hero-card { width: 100%; }
-body.compact #hero-list { flex-direction: column; }
-
-body.compact #footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
-  flex-direction: column;
-  align-items: stretch;
-  margin: 0 -12px -12px;
-  padding: 12px;
-  background: var(--cp-bg);
-}
-body.compact #footer-main { flex-direction: row; }
-body.compact #select-random { flex: 1; min-height: 52px; font-size: 16px; }
-body.compact #more-toggle { display: block; min-height: 52px; padding: 0 18px; }
-body.compact #more-actions {
-  display: none;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  padding: 8px;
-  border-radius: 10px;
-  background: var(--cp-surface);
-}
-body.compact #more-actions.open { display: flex; }
-body.compact #more-actions .btn { min-height: 48px; }
-body.compact #more-actions a { padding: 12px 8px; font-size: 15px; }
-
-/* ============================================================
-   DOCK (360px, tiles + tabs + sheet)
-   ============================================================ */
-body.dock #app { max-width: 360px; padding: 8px; gap: 6px; height: 100vh; min-height: 0; }
-body.dock #header { padding: 8px; box-shadow: 0 0 0 6px var(--cp-bg); }
-body.dock #current-hero { flex-direction: row; align-items: center; }
-body.dock #current-hero-icon { width: 56px; outline-offset: 2px; }
-body.dock #current-hero-info { gap: 10px; }
-body.dock #current-hero-role { font-size: 18px; }
-body.dock #current-hero-role-icon { width: 18px; height: 18px; }
-body.dock #current-hero-name { font-size: 34px; }
-body.dock #current-hero-results { flex-direction: column; gap: 4px; }
-body.dock #current-hero-results .btn { min-height: 40px; padding: 6px 12px; font-size: 16px; }
-body.dock #banner-text { font-size: 28px; }
-
-body.dock #role-tabs { display: flex; }
-body.dock #hero-list { display: none; }
-body.dock main { overflow-y: auto; }
-body.dock #hero-tiles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  align-content: start;
-}
-
+/* ---------- hero tiles (small viewports) ---------- */
 .hero-tile {
   position: relative;
   display: flex;
@@ -442,18 +486,16 @@ body.dock #hero-tiles {
 .hero-tile.blocked .tile-name { text-decoration: line-through; }
 .hero-tile.blocked .tile-badge { background: var(--cp-red-soft); }
 
-body.dock #footer { padding: 8px 0 0; margin: 0; position: static; }
-
-/* ---------- bottom sheet (dock) ---------- */
-#sheet-backdrop { position: absolute; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.55); }
+/* ---------- bottom sheet (small viewports) ---------- */
+#sheet-backdrop { display: none; position: fixed; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.55); }
 #sheet {
-  position: absolute;
+  display: none;
+  position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 21;
   padding: 12px;
-  display: flex;
   flex-direction: column;
   gap: 10px;
   background: var(--cp-surface);
@@ -469,3 +511,66 @@ body.dock #footer { padding: 8px 0 0; margin: 0; position: static; }
 .sheet-select:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
 .sheet-complete { background: var(--cp-green); color: #0d1a14; }
 .sheet-block { background: var(--cp-red-soft); color: var(--cp-bg); }
+
+/* ============================================================
+   SMALL VIEWPORTS (phones, narrow OBS docks)
+   Cards with buttons give way to tiles + a bottom sheet. Header and
+   footer stay sticky at every width (see #header and #footer above).
+   ============================================================ */
+@media (max-width: 480px) {
+  #app { padding: 8px; gap: 6px; }
+
+  #header { padding: 8px; gap: 12px; box-shadow: 0 0 0 6px var(--cp-bg); }
+  #current-hero { min-height: 0; flex-direction: row; align-items: center; gap: 12px; }
+  #current-hero-info { gap: 10px; }
+  #current-hero-icon { width: 56px; outline-offset: 2px; }
+  #current-hero-role { font-size: 18px; }
+  #current-hero-role-icon { width: 18px; height: 18px; }
+  #current-hero-name { font-size: 34px; }
+  #current-hero-stats { font-size: 18px; }
+  #current-hero-results { flex-direction: column; gap: 4px; }
+  #current-hero-results .btn { flex: 1; min-height: 40px; padding: 6px 12px; font-size: 16px; }
+  #banner { min-height: 0; flex-direction: column; align-items: stretch; gap: 12px; }
+  #banner-text { font-size: 28px; }
+  #banner-random { min-height: 52px; padding: 10px 16px; font-size: 16px; }
+
+  #role-tabs { display: flex; }
+  #hero-list, #no-match { display: none; }
+  #hero-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    align-content: start;
+  }
+  .no-match { grid-column: 1 / -1; }
+  #sheet { display: flex; }
+  #sheet-backdrop { display: block; }
+
+  #queue-panel { padding: 8px; margin-bottom: 6px; }
+  #queue-title { font-size: 24px; }
+  .queue-text { min-width: 0; flex-basis: calc(100% - 60px); }
+  .queue-actions { width: 100%; }
+  .queue-actions .btn, .queue-pick { flex: 1; }
+
+  #footer {
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 -8px -8px;
+    padding: 8px;
+  }
+  #footer-main { flex-direction: row; }
+  #select-random { flex: 1; min-height: 52px; font-size: 16px; }
+  #more-toggle { display: block; min-height: 52px; padding: 0 18px; }
+  #more-actions {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 10px;
+    background: var(--cp-surface);
+  }
+  #more-actions.open { display: flex; }
+  #more-actions .btn { min-height: 48px; }
+  #more-actions a { padding: 12px 8px; font-size: 15px; }
+}

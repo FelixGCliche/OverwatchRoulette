@@ -1,0 +1,11 @@
+/* Shared by every OBS overlay page: the browser source's Width/Height *is*
+   the viewport, and the page background stays transparent. */
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0);
+}
