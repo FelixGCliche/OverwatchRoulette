@@ -1,8 +1,8 @@
 .hero-queue {
   box-sizing: border-box;
-  /* always as wide as the next hero, two more and the "+N" tile, so it never
-     resizes */
-  width: calc(436 * var(--px));
+  /* always as wide as the next hero (as big as the current hero icon), two
+     more and the "+N" tile, so it never resizes */
+  width: calc(548 * var(--px));
   padding: calc(16 * var(--px));
   border-radius: calc(16 * var(--px));
   background-color: var(--color-surface);
@@ -14,7 +14,7 @@
   /* big next hero on the left; the others and the label stack on its right */
   display: grid;
   grid-template-columns:
-    calc(152 * var(--px)) calc(80 * var(--px)) calc(80 * var(--px)) calc(56 * var(--px));
+    calc(264 * var(--px)) calc(80 * var(--px)) calc(80 * var(--px)) calc(56 * var(--px));
   grid-template-rows: auto calc(80 * var(--px)) 1fr;
   gap: calc(8 * var(--px)) calc(12 * var(--px));
 }
@@ -28,7 +28,7 @@
 .hero-queue-title {
   grid-column: 1 / -1;
   grid-row: 1;
-  font-size: calc(48 * var(--px));
+  font-size: calc(64 * var(--px));
   line-height: 1;
 }
 
@@ -80,7 +80,7 @@
 }
 
 .hero-queue-item:first-child.unmatched .hero-queue-icon {
-  font-size: calc(96 * var(--px));
+  font-size: calc(160 * var(--px));
 }
 
 /* the next request's donor, right of the next hero and under the others */
