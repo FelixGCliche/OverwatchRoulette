@@ -24,6 +24,12 @@ export function createHeroPicker(item) {
     else input.value = current;
   };
   input.addEventListener('focus', () => { input.value = ''; });
+  // Clicking the box (even when already focused) opens the full hero list.
+  input.addEventListener('click', () => {
+    if (input.value !== '' && input.value !== current) return;
+    input.value = '';
+    try { input.showPicker?.(); } catch { /* picker needs a user gesture; ignore */ }
+  });
   input.addEventListener('change', commit);
   // Choosing a suggestion replaces the text in one step; save it right away.
   input.addEventListener('input', (e) => {
