@@ -34,9 +34,14 @@ export function mountHeroQueue(el) {
 
   // Event ids already on screen; only items not in here animate in.
   let shown = null;
+  // True while removed items fade out; renders meanwhile wait for it to end.
+  let leaving = false;
 
   function Render() {
+    if (leaving) return;
     const items = queue();
+    if (FadeOutRemoved(items)) return;
+
     el.hidden = items.length === 0;
     list.textContent = '';
     if (items.length === 0) return;
@@ -55,9 +60,34 @@ export function mountHeroQueue(el) {
     more.textContent = `+${hiddenCount}`;
   }
 
+  // Fades out the rows on screen whose request left the queue (played or
+  // removed), then renders the latest queue. The next request's donor fades
+  // with it, and the whole box fades when the queue empties. Returns false
+  // when nothing on screen left the queue, so Render can go on.
+  function FadeOutRemoved(items) {
+    if (el.hidden) return false;
+    const ids = new Set(items.map((item) => item.eventId));
+    const gone = [...list.children].filter((row) => !ids.has(row.dataset.eventId));
+    if (gone.length === 0) return false;
+
+    leaving = true;
+    const faded = items.length === 0 ? [el] : gone;
+    if (items.length > 0 && gone.includes(list.firstElementChild)) faded.push(donor);
+    faded.forEach((node) => node.classList.add('leaving'));
+    // Resolves at once when no animation runs (e.g. reduced motion).
+    const animations = faded.flatMap((node) => node.getAnimations());
+    Promise.all(animations.map((animation) => animation.finished.catch(() => {}))).then(() => {
+      faded.forEach((node) => node.classList.remove('leaving'));
+      leaving = false;
+      Render();
+    });
+    return true;
+  }
+
   function CreateItem(item, hero) {
     const row = document.createElement('li');
     row.className = 'hero-queue-item';
+    row.dataset.eventId = item.eventId;
     row.classList.toggle('unmatched', !hero);
 
     const icon = document.createElement(hero ? 'img' : 'div');

@@ -1,9 +1,9 @@
 .hero-queue {
   box-sizing: border-box;
-  /* always as wide as the next hero, two more and the "+N" tile, so it never
-     resizes */
-  width: calc(436 * var(--px));
-  padding: calc(16 * var(--px));
+  /* always as wide as the next hero (as big as the current hero icon), two
+     more and the "+N" tile, so it never resizes */
+  width: calc(580 * var(--px));
+  padding: calc(32 * var(--px));
   border-radius: calc(16 * var(--px));
   background-color: var(--color-surface);
   color: var(--color-text);
@@ -14,9 +14,9 @@
   /* big next hero on the left; the others and the label stack on its right */
   display: grid;
   grid-template-columns:
-    calc(152 * var(--px)) calc(80 * var(--px)) calc(80 * var(--px)) calc(56 * var(--px));
+    calc(264 * var(--px)) calc(80 * var(--px)) calc(80 * var(--px)) calc(56 * var(--px));
   grid-template-rows: auto calc(80 * var(--px)) 1fr;
-  gap: calc(8 * var(--px)) calc(12 * var(--px));
+  gap: calc(16 * var(--px)) calc(12 * var(--px));
 }
 
 /* display:grid above would otherwise beat the [hidden] attribute */
@@ -28,7 +28,7 @@
 .hero-queue-title {
   grid-column: 1 / -1;
   grid-row: 1;
-  font-size: calc(48 * var(--px));
+  font-size: calc(64 * var(--px));
   line-height: 1;
 }
 
@@ -66,8 +66,8 @@
 }
 
 .hero-queue-item:first-child .hero-queue-icon {
-  outline: calc(4 * var(--px)) solid var(--color-current);
-  outline-offset: calc(3 * var(--px));
+  outline: calc(5 * var(--px)) solid var(--color-current);
+  outline-offset: calc(5 * var(--px));
 }
 
 .hero-queue-item.unmatched .hero-queue-icon {
@@ -80,7 +80,7 @@
 }
 
 .hero-queue-item:first-child.unmatched .hero-queue-icon {
-  font-size: calc(96 * var(--px));
+  font-size: calc(160 * var(--px));
 }
 
 /* the next request's donor, right of the next hero and under the others */
@@ -125,8 +125,27 @@
   animation: hero-queue-enter 0.5s ease-out both;
 }
 
+/* played or removed requests fade out before the queue re-renders */
+@keyframes hero-queue-leave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.hero-queue.leaving,
+.hero-queue-item.leaving,
+.hero-queue-donor.leaving {
+  animation: hero-queue-leave 0.4s ease-in both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .hero-queue-item.entering {
+  .hero-queue-item.entering,
+  .hero-queue.leaving,
+  .hero-queue-item.leaving,
+  .hero-queue-donor.leaving {
     animation: none;
   }
 }

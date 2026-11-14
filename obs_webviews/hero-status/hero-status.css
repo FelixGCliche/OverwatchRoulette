@@ -1,5 +1,6 @@
 @import url('../../components/hero-grid/hero-grid.css');
 @import url('../../components/current-hero/current-hero.css');
+@import url('../../components/hero-queue/hero-queue.css');
 @import url('../overlay.css');
 
 html,
@@ -26,7 +27,7 @@ body.wheel-spinning main {
   }
 }
 
-/* Grid on top, current-hero banner below. */
+/* Grid on top, then the current-hero banner, then the request queue. */
 main {
   display: flex;
   flex-direction: column;
