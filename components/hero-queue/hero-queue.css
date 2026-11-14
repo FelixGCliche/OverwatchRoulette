@@ -15,7 +15,7 @@
   display: grid;
   grid-template-columns:
     calc(152 * var(--px)) calc(80 * var(--px)) calc(80 * var(--px)) calc(56 * var(--px));
-  grid-template-rows: calc(80 * var(--px)) 1fr;
+  grid-template-rows: auto calc(80 * var(--px)) 1fr;
   gap: calc(8 * var(--px)) calc(12 * var(--px));
 }
 
@@ -23,6 +23,13 @@
 .hero-queue[hidden],
 .hero-queue-more[hidden] {
   display: none;
+}
+
+.hero-queue-title {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  font-size: calc(48 * var(--px));
+  line-height: 1;
 }
 
 .hero-queue-list {
@@ -33,14 +40,14 @@
 }
 
 .hero-queue-item {
-  grid-row: 1;
+  grid-row: 2;
   min-width: 0;
 }
 
 /* the first request is up next */
 .hero-queue-item:nth-child(1) {
   grid-column: 1;
-  grid-row: 1 / span 2;
+  grid-row: 2 / span 2;
 }
 
 .hero-queue-item:nth-child(2) {
@@ -79,7 +86,7 @@
 /* the next request's donor, right of the next hero and under the others */
 .hero-queue-donor {
   grid-column: 2 / -1;
-  grid-row: 2;
+  grid-row: 3;
   align-self: center;
   min-width: 0;
   color: var(--color-current);
@@ -92,7 +99,7 @@
 
 .hero-queue-more {
   grid-column: 4;
-  grid-row: 1;
+  grid-row: 2;
   display: flex;
   align-items: center;
   justify-content: center;

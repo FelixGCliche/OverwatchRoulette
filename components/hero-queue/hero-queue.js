@@ -14,6 +14,10 @@ const MAX_SHOWN = 3;
 // also arrives via the storage event). Only accepted requests are shown;
 // pending ones stay on the dashboard. `el` is hidden while the queue is empty.
 export function mountHeroQueue(el) {
+  const title = document.createElement('div');
+  title.className = 'hero-queue-title';
+  title.textContent = 'Up next:';
+
   const list = document.createElement('ol');
   list.className = 'hero-queue-list';
 
@@ -26,7 +30,7 @@ export function mountHeroQueue(el) {
   const donor = document.createElement('div');
   donor.className = 'hero-queue-donor';
 
-  el.append(list, donor, more);
+  el.append(title, list, donor, more);
 
   // Event ids already on screen; only items not in here animate in.
   let shown = null;
