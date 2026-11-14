@@ -25,8 +25,7 @@ export function mountHeroQueue(el) {
   more.className = 'hero-queue-more';
 
   el.classList.add('hero-queue');
-  // "+N more" sits above the list, since the list grows upward.
-  el.append(title, more, list);
+  el.append(title, list, more);
 
   // Event ids already on screen; only rows not in here animate in.
   let shown = null;
