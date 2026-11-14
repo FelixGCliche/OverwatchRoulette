@@ -4,6 +4,9 @@
   flex-direction: row;
   align-items: flex-start;
   gap: calc(12 * var(--px));
+  box-sizing: border-box;
+  /* always as wide as 3 requests plus the "+N" tile, so it never resizes */
+  width: calc(436 * var(--px));
   padding: calc(16 * var(--px));
   border-radius: calc(16 * var(--px));
   background-color: var(--color-surface);
@@ -83,11 +86,11 @@
   line-height: 1;
 }
 
-/* new requests slide in from the left */
+/* new requests slide in from the right */
 @keyframes hero-queue-enter {
   from {
     opacity: 0;
-    transform: translateX(calc(-48 * var(--px)));
+    transform: translateX(calc(48 * var(--px)));
   }
   to {
     opacity: 1;
