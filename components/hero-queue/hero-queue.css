@@ -1,8 +1,8 @@
 .hero-queue {
   box-sizing: border-box;
-  /* always as wide as the next hero (as big as the current hero icon), two
-     more and the "+N" tile, so it never resizes */
-  width: calc(676 * var(--px));
+  /* always as wide as the next hero, two more and the "+N" tile, so it never
+     resizes */
+  width: calc(704 * var(--px));
   padding: calc(32 * var(--px));
   border-radius: calc(16 * var(--px));
   background-color: var(--color-surface);
@@ -11,11 +11,14 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 
-  /* big next hero on the left; the others and the label stack on its right */
+  /* big next hero on the left; the others and the label stack on its right.
+     The next hero spans the icon row and the donor row (128 + 16 + 56 = 200),
+     and an 8px spacer track widens the gap after it to 32px. */
   display: grid;
   grid-template-columns:
-    calc(264 * var(--px)) calc(128 * var(--px)) calc(128 * var(--px)) calc(56 * var(--px));
-  grid-template-rows: auto calc(128 * var(--px)) 1fr;
+    [next] calc(200 * var(--px)) calc(8 * var(--px))
+    [rest-start] repeat(3, calc(128 * var(--px))) [rest-end];
+  grid-template-rows: auto calc(128 * var(--px)) calc(56 * var(--px));
   gap: calc(16 * var(--px)) calc(12 * var(--px));
 }
 
@@ -46,16 +49,16 @@
 
 /* the first request is up next */
 .hero-queue-item:nth-child(1) {
-  grid-column: 1;
+  grid-column: next;
   grid-row: 2 / span 2;
 }
 
 .hero-queue-item:nth-child(2) {
-  grid-column: 2;
+  grid-column: 3;
 }
 
 .hero-queue-item:nth-child(3) {
-  grid-column: 3;
+  grid-column: 4;
 }
 
 .hero-queue-icon {
@@ -80,12 +83,12 @@
 }
 
 .hero-queue-item:first-child.unmatched .hero-queue-icon {
-  font-size: calc(160 * var(--px));
+  font-size: calc(120 * var(--px));
 }
 
 /* the next request's donor, right of the next hero and under the others */
 .hero-queue-donor {
-  grid-column: 2 / -1;
+  grid-column: rest-start / rest-end;
   grid-row: 3;
   align-self: end;
   min-width: 0;
@@ -98,7 +101,7 @@
 }
 
 .hero-queue-more {
-  grid-column: 4;
+  grid-column: 5;
   grid-row: 2;
   display: flex;
   align-items: center;
