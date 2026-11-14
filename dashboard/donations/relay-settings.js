@@ -1,6 +1,8 @@
-import { enqueue, itemFromEvent } from '../../store/queue.js';
+import { enqueue, itemFromEvent, onHandled } from '../../store/queue.js';
 import {
   connectRelay,
+  fetchPendingRequests,
+  markFulfilled,
   relayUrl,
   hasRelayParam,
   saveRelayUrl,
@@ -23,11 +25,18 @@ const STATUS_TEXT = {
 
 let relay = null;
 
-// Connection URL + incentive ID forms, the status pill, and the relay socket
-// that feeds the request queue.
+// Connection URL + incentive ID forms, the status pill, the relay socket
+// that feeds the request queue, and the "Refresh requests" button.
+//
+// Only the dashboard marks requests fulfilled in the dock: the OBS pages
+// connect to the relay too, but never accept or decline.
 export function mountRelaySettings() {
   $('relay-form').addEventListener('submit', saveUrl);
   $('incentive-form').addEventListener('submit', saveIncentives);
+  $('queue-refresh').addEventListener('click', refreshRequests);
+  onHandled((item) => {
+    if (!item.test) markFulfilled(relayUrl(), [item.eventId]);
+  });
 
   $('hero-incentive').value = heroIncentiveId() ?? '';
   watchHeroIncentiveId((id) => {
@@ -80,6 +89,28 @@ function saveIncentives(e) {
   }
   $('hero-incentive').value = heroIncentiveId() ?? '';
   $('uncomplete-incentive').value = uncompleteIncentiveId() ?? '';
+}
+
+// Pulls every redemption the dock hasn't marked fulfilled (not only the
+// relay's replay window) and queues it as pending. enqueue skips items
+// already queued or handled.
+async function refreshRequests() {
+  const button = $('queue-refresh');
+  const status = $('queue-refresh-status');
+  button.disabled = true;
+  status.textContent = 'Refreshing…';
+  delete status.dataset.error;
+  try {
+    const results = await fetchPendingRequests(relayUrl());
+    const added = results.filter(({ event, kind }) => enqueue(itemFromEvent(event, kind))).length;
+    status.textContent = added === 0 ? 'No new requests' : `Added ${added} request${added === 1 ? '' : 's'}`;
+  } catch (error) {
+    console.warn('[relay:pending]', error);
+    status.textContent = error instanceof Error ? error.message : 'Refresh failed.';
+    status.dataset.error = '';
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function renderStatus(status) {

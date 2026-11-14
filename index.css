@@ -268,7 +268,9 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   letter-spacing: 0.04em;
   line-height: 1;
 }
-#queue-play-next { margin-left: auto; }
+#queue-refresh-status { margin-left: auto; font-size: 13px; color: var(--cp-muted); }
+#queue-refresh-status[data-error] { color: var(--cp-red-soft); }
+#queue-refresh:disabled { opacity: 0.5; }
 #queue-play-next:disabled { background: rgba(242, 239, 232, 0.08); color: rgba(242, 239, 232, 0.4); }
 
 #relay-status { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--cp-muted); }

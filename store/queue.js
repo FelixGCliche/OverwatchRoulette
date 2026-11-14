@@ -19,6 +19,10 @@
 // (`handled`) so a replay after a reload doesn't bring them back.
 // Listeners run after any change in this tab and after any change made by
 // another tab (via the `storage` event).
+//
+// Handled listeners (onHandled) run once per item, in the tab that acted,
+// when it leaves pending: accepted, applied (un-complete) or declined.
+// Playing or removing an accepted item doesn't run them again.
 
 // MVP-SHORTCUT(MVP-12): queue in each page's localStorage, deduped by event id
 
@@ -36,6 +40,7 @@ const STATUSES = ['pending', 'accepted'];
 const KINDS = ['hero', 'uncomplete'];
 
 const listeners = new Set();
+const handledListeners = new Set();
 let storageSyncStarted = false;
 let spinWatchStarted = false;
 let spinning = false;
@@ -94,6 +99,23 @@ export function subscribe(listener) {
   startSpinWatch();
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+// Calls listener(item) when an item leaves pending in this tab (accept,
+// un-complete or decline). Returns unsubscribe.
+export function onHandled(listener) {
+  handledListeners.add(listener);
+  return () => handledListeners.delete(listener);
+}
+
+function notifyHandled(item) {
+  handledListeners.forEach((listener) => {
+    try {
+      listener(item);
+    } catch (error) {
+      console.warn('[queue:onHandled] listener failed', error);
+    }
+  });
 }
 
 // Accepted items, in order: what the overlay shows and what can be played.
@@ -163,17 +185,22 @@ export function accept(eventId) {
     return;
   }
   writeState({ ...state, items: state.items.map((i) => (i.eventId === eventId ? { ...i, status: 'accepted' } : i)) });
+  notifyHandled({ ...item, status: 'accepted' });
   console.log('[queue:accept]', eventId, item.hero);
 }
 
 // Drops an item, pending (decline) or accepted, and remembers its id.
+// Handled listeners run only for a pending item; an accepted one already
+// ran them when it was accepted.
 export function remove(eventId) {
   const state = readState();
-  if (!state.items.some((i) => i.eventId === eventId)) return;
+  const item = state.items.find((i) => i.eventId === eventId);
+  if (!item) return;
   writeState({
     items: state.items.filter((i) => i.eventId !== eventId),
     handled: [...state.handled, eventId],
   });
+  if (item.status === 'pending') notifyHandled(item);
   console.log('[queue:remove]', eventId);
 }
 
