@@ -27,15 +27,23 @@ export function mountHeroQueue(el) {
   el.classList.add('hero-queue');
   el.append(title, list, more);
 
+  // Event ids already on screen; only rows not in here animate in.
+  let shown = null;
+
   function Render() {
     const items = queue();
     el.hidden = items.length === 0;
     list.textContent = '';
     if (items.length === 0) return;
 
-    items.slice(0, MAX_SHOWN).forEach((item) => {
-      list.appendChild(CreateItem(item, heroByName(item.hero)));
+    const visible = items.slice(0, MAX_SHOWN);
+    visible.forEach((item) => {
+      const row = CreateItem(item, heroByName(item.hero));
+      // No animation on the first render, so a page load doesn't replay it.
+      if (shown && !shown.has(item.eventId)) row.classList.add('entering');
+      list.appendChild(row);
     });
+    shown = new Set(visible.map((item) => item.eventId));
     const hiddenCount = items.length - MAX_SHOWN;
     more.hidden = hiddenCount <= 0;
     more.textContent = `+${hiddenCount} more`;
