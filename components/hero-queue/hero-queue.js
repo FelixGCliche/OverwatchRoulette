@@ -1,23 +1,19 @@
 import { subscribe as subscribeToHeroes } from '../../store/core.js';
 import { heroByName } from '../../store/queries.js';
 import { queue, subscribe as subscribeToQueue } from '../../store/queue.js';
-import { formatAmount } from '../../utils/format.js';
 import { heroIconUrl } from '../../utils/assets.js';
 
 
-// Upcoming requests shown at once; the rest is summarized as "+N more".
+// Upcoming requests shown at once; the rest is summarized as "+N".
 const MAX_SHOWN = 3;
 
-// Mounts the hero request queue into `el`. Renders from localStorage on mount,
-// then again on every queue or hero change (the dashboard and the relay write
-// from other pages, so this also arrives via the storage event). Only accepted
-// requests are shown; pending ones stay on the dashboard. `el` is hidden while
-// the queue is empty.
+// Mounts the hero request queue into `el`: a row of hero icons, each labelled
+// with the donor's name (incentives are a fixed price, so the amount is not
+// shown). Renders from localStorage on mount, then again on every queue or
+// hero change (the dashboard and the relay write from other pages, so this
+// also arrives via the storage event). Only accepted requests are shown;
+// pending ones stay on the dashboard. `el` is hidden while the queue is empty.
 export function mountHeroQueue(el) {
-  const title = document.createElement('div');
-  title.className = 'hero-queue-title';
-  title.textContent = 'Hero requests';
-
   const list = document.createElement('ol');
   list.className = 'hero-queue-list';
 
@@ -25,9 +21,9 @@ export function mountHeroQueue(el) {
   more.className = 'hero-queue-more';
 
   el.classList.add('hero-queue');
-  el.append(title, list, more);
+  el.append(list, more);
 
-  // Event ids already on screen; only rows not in here animate in.
+  // Event ids already on screen; only items not in here animate in.
   let shown = null;
 
   function Render() {
@@ -46,7 +42,7 @@ export function mountHeroQueue(el) {
     shown = new Set(visible.map((item) => item.eventId));
     const hiddenCount = items.length - MAX_SHOWN;
     more.hidden = hiddenCount <= 0;
-    more.textContent = `+${hiddenCount} more`;
+    more.textContent = `+${hiddenCount}`;
   }
 
   function CreateItem(item, hero) {
@@ -60,30 +56,15 @@ export function mountHeroQueue(el) {
       icon.src = heroIconUrl(hero);
       icon.alt = hero.name;
     } else {
+      // The raw message is not shown on stream; the streamer picks the hero.
       icon.textContent = '?';
     }
 
-    const name = document.createElement('div');
-    name.className = 'hero-queue-name';
-    // The raw message is not shown on stream; the streamer picks the hero.
-    name.textContent = hero ? hero.name : 'Hero to pick';
-
     const donor = document.createElement('div');
     donor.className = 'hero-queue-donor';
-    donor.textContent = [item.donor, formatAmount(item.amount)].filter(Boolean).join(' · ');
+    donor.textContent = item.donor || 'Anonymous';
 
-    const text = document.createElement('div');
-    text.className = 'hero-queue-text';
-    text.append(name, donor);
-
-    row.append(icon, text);
-
-    if (item.test) {
-      const badge = document.createElement('span');
-      badge.className = 'hero-queue-test';
-      badge.textContent = 'Test';
-      row.appendChild(badge);
-    }
+    row.append(icon, donor);
     return row;
   }
 
