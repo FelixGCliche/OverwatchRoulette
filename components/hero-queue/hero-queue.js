@@ -7,6 +7,9 @@ import { heroIconUrl } from '../../utils/assets.js';
 // Upcoming requests shown at once; the rest is summarized as "+N".
 const MAX_SHOWN = 3;
 
+// Length of the hero-queue-leave animation in hero-queue.css.
+const LEAVE_MS = 400;
+
 // Mounts the hero request queue into `el`: a row of hero icons, each labelled
 // with the donor's name (incentives are a fixed price, so the amount is not
 // shown). Renders from localStorage on mount, then again on every queue or
@@ -71,16 +74,20 @@ export function mountHeroQueue(el) {
     if (gone.length === 0) return false;
 
     leaving = true;
-    const faded = items.length === 0 ? [el] : gone;
+    const faded = items.length === 0 ? [el] : [...gone];
     if (items.length > 0 && gone.includes(list.firstElementChild)) faded.push(donor);
     faded.forEach((node) => node.classList.add('leaving'));
-    // Resolves at once when no animation runs (e.g. reduced motion).
-    const animations = faded.flatMap((node) => node.getAnimations());
-    Promise.all(animations.map((animation) => animation.finished.catch(() => {}))).then(() => {
+    // A timer, not animation.finished: that only resolves when the page draws
+    // a frame, which a background tab or an OBS source off screen never does.
+    const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : LEAVE_MS;
+    setTimeout(() => {
       faded.forEach((node) => node.classList.remove('leaving'));
+      // Drop the faded rows, or the next render would find them gone again
+      // and fade them forever.
+      gone.forEach((row) => row.remove());
       leaving = false;
       Render();
-    });
+    }, delay);
     return true;
   }
 

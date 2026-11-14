@@ -141,6 +141,7 @@
 .hero-queue.leaving,
 .hero-queue-item.leaving,
 .hero-queue-donor.leaving {
+  /* keep in sync with LEAVE_MS in hero-queue.js */
   animation: hero-queue-leave 0.4s ease-in both;
 }
 
