@@ -24,7 +24,8 @@
 
 .hero-queue-list {
   display: flex;
-  flex-direction: column;
+  /* fills from the bottom up: the next request sits at the bottom */
+  flex-direction: column-reverse;
   gap: calc(12 * var(--px));
   margin: 0;
   padding: 0;
