@@ -33,8 +33,8 @@ export function mountHeroQueue(el) {
     if (items.length === 0) return;
 
     const visible = items.slice(0, MAX_SHOWN);
-    visible.forEach((item) => {
-      const row = CreateItem(item, heroByName(item.hero));
+    visible.forEach((item, index) => {
+      const row = CreateItem(item, heroByName(item.hero), index === 0);
       // No animation on the first render, so a page load doesn't replay it.
       if (shown && !shown.has(item.eventId)) row.classList.add('entering');
       list.appendChild(row);
@@ -45,7 +45,7 @@ export function mountHeroQueue(el) {
     more.textContent = `+${hiddenCount}`;
   }
 
-  function CreateItem(item, hero) {
+  function CreateItem(item, hero, isNext) {
     const row = document.createElement('li');
     row.className = 'hero-queue-item';
     row.classList.toggle('unmatched', !hero);
@@ -60,11 +60,14 @@ export function mountHeroQueue(el) {
       icon.textContent = '?';
     }
 
-    const donor = document.createElement('div');
-    donor.className = 'hero-queue-donor';
-    donor.textContent = item.donor || 'Anonymous';
-
-    row.append(icon, donor);
+    row.append(icon);
+    // Only the next request is labelled with its donor.
+    if (isNext) {
+      const donor = document.createElement('div');
+      donor.className = 'hero-queue-donor';
+      donor.textContent = item.donor || 'Anonymous';
+      row.append(donor);
+    }
     return row;
   }
 

@@ -34,17 +34,21 @@
   flex: none;
   flex-direction: column;
   gap: calc(8 * var(--px));
-  width: calc(104 * var(--px));
+  width: calc(80 * var(--px));
+}
+
+/* the first request is up next: bigger, and the only one with a label */
+.hero-queue-item:first-child {
+  width: calc(152 * var(--px));
 }
 
 .hero-queue-icon {
-  width: calc(104 * var(--px));
-  height: calc(104 * var(--px));
+  width: 100%;
+  aspect-ratio: 1;
   object-fit: cover;
   border-radius: calc(8 * var(--px));
 }
 
-/* the first request is up next */
 .hero-queue-item:first-child .hero-queue-icon {
   outline: calc(4 * var(--px)) solid var(--color-current);
   outline-offset: calc(3 * var(--px));
@@ -59,13 +63,17 @@
   align-items: center;
   justify-content: center;
   background-color: var(--color-text-faint);
-  font-size: calc(72 * var(--px));
+  font-size: calc(48 * var(--px));
   line-height: 1;
+}
+
+.hero-queue-item:first-child.unmatched .hero-queue-icon {
+  font-size: calc(96 * var(--px));
 }
 
 .hero-queue-donor {
   margin-top: calc(3 * var(--px));
-  font-size: calc(36 * var(--px));
+  font-size: calc(44 * var(--px));
   line-height: 1;
   text-align: center;
   white-space: nowrap;
@@ -79,7 +87,7 @@
   align-items: center;
   justify-content: center;
   width: calc(56 * var(--px));
-  height: calc(104 * var(--px));
+  height: calc(80 * var(--px));
   border-radius: calc(8 * var(--px));
   background-color: rgba(242, 239, 232, 0.12);
   font-size: calc(44 * var(--px));
