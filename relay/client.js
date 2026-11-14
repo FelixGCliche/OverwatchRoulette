@@ -1,6 +1,6 @@
-// WebSocket client for the donation relay channel (protocol version 1).
+// Client for the donation relay channel (protocol version 1).
 //
-//   URL      wss://<origin>/api/channel/<key>
+//   URL      wss://<origin>/api/channel/<key>?host=<extralife|try>&pid=<id>
 //   frames   { kind: 'hello', key } | { kind: 'replay', events } |
 //            { kind: 'event', event } | { kind: 'marks', marks }
 //
@@ -12,6 +12,13 @@
 // at each event, so a change applies live on every page of this origin.
 // Hello and marks frames are ignored. The client reconnects with exponential
 // backoff and resumes after the last event it saw (`&since=<id>`).
+//
+// Two HTTP calls share the channel URL (ws: -> http:, wss: -> https:):
+//   GET  <base>/pending?host&pid&incentiveId=..  -> { events }: redemptions
+//        not yet marked fulfilled in the dock, oldest first
+//   POST <base>/marks { op: 'fulfill', ids }     -> marks donations fulfilled
+// host and pid come from the relay URL's query; older URLs lack them and
+// must be copied again from the dock's setup page.
 
 import { read, write, subscribe as subscribeToStorage } from '../store/storage.js';
 
@@ -77,7 +84,7 @@ function kindOf(incentiveId) {
 }
 
 // Returns { url } or null when the URL can't be used. Query params are
-// kept but not read.
+// kept; only relayParticipant reads them.
 export function parseRelayUrl(value) {
   let url;
   try {
@@ -108,6 +115,104 @@ const isRelayEvent = (event) =>
   (event.data.amount === null || Number.isFinite(event.data.amount)) &&
   (event.data.message === undefined || isString(event.data.message)) &&
   (event.data.incentiveId === undefined || isString(event.data.incentiveId));
+
+// https://<origin>/api/channel/<key> for a relay URL, or null when invalid.
+export function relayHttpBase(value) {
+  const parsed = value ? parseRelayUrl(value) : null;
+  if (!parsed) return null;
+  const { url } = parsed;
+  const protocol = url.protocol === 'wss:' ? 'https:' : 'http:';
+  return `${protocol}//${url.host}${url.pathname.replace(/\/$/, '')}`;
+}
+
+// { host, pid } from the relay URL's query, or null when either is missing.
+export function relayParticipant(value) {
+  const parsed = value ? parseRelayUrl(value) : null;
+  if (!parsed) return null;
+  const host = parsed.url.searchParams.get('host');
+  const pid = parsed.url.searchParams.get('pid');
+  return host && pid ? { host, pid } : null;
+}
+
+const REDEEMED_PREFIX = 'incentive.redeemed:';
+
+// Readable message for a failed /pending response.
+async function pendingError(response) {
+  if (response.status === 429) {
+    const seconds = Number(response.headers.get('Retry-After'));
+    return Number.isFinite(seconds) && seconds > 0
+      ? `DonorDrive is rate limiting requests. Try again in ${Math.ceil(seconds)} s.`
+      : 'DonorDrive is rate limiting requests. Try again shortly.';
+  }
+  if (response.status === 404) return 'Participant not found on DonorDrive. Check the relay URL.';
+  if (response.status === 400) return 'The relay rejected the request. Copy the relay URL again from the dock setup page.';
+  if (response.status === 502) return 'DonorDrive could not be reached. Try again later.';
+  return `Refresh failed (HTTP ${response.status}).`;
+}
+
+// Fetches every redemption of the saved incentives that the dock hasn't
+// marked fulfilled. Returns [{ event, kind }], oldest first. Throws an Error
+// with a message fit for the user when it can't.
+export async function fetchPendingRequests(url) {
+  const base = relayHttpBase(url);
+  if (!base) throw new Error('No valid relay URL saved.');
+  const participant = relayParticipant(url);
+  if (!participant) {
+    throw new Error('This relay URL is missing the participant. Copy the relay URL again from the dock setup page.');
+  }
+  const ids = [heroIncentiveId(), uncompleteIncentiveId()].filter(Boolean);
+  if (ids.length === 0) throw new Error('Save a hero or un-complete incentive ID first.');
+
+  const target = new URL(`${base}/pending`);
+  target.searchParams.set('host', participant.host);
+  target.searchParams.set('pid', participant.pid);
+  new Set(ids).forEach((id) => target.searchParams.append('incentiveId', id));
+
+  let response;
+  try {
+    response = await fetch(target);
+  } catch {
+    throw new Error('Could not reach the relay. Check your connection.');
+  }
+  if (!response.ok) throw new Error(await pendingError(response));
+
+  let body;
+  try {
+    body = await response.json();
+  } catch {
+    throw new Error('The relay sent an unexpected response.');
+  }
+  if (!Array.isArray(body?.events)) throw new Error('The relay sent an unexpected response.');
+
+  return body.events.flatMap((event) => {
+    if (!isRelayEvent(event) || event.type !== 'incentive.redeemed') return [];
+    const kind = kindOf(event.data.incentiveId);
+    return kind ? [{ event, kind }] : [];
+  });
+}
+
+// Marks the donations behind `incentive.redeemed:<donationId>` event ids as
+// fulfilled in the dock; other ids are skipped. Fire-and-forget: failures
+// are only logged.
+export function markFulfilled(url, eventIds) {
+  const base = relayHttpBase(url);
+  const ids = eventIds
+    .filter((id) => typeof id === 'string' && id.startsWith(REDEEMED_PREFIX))
+    .map((id) => id.slice(REDEEMED_PREFIX.length))
+    .filter(Boolean);
+  if (!base || ids.length === 0) return;
+
+  fetch(`${base}/marks`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ op: 'fulfill', ids }),
+  })
+    .then((response) => {
+      if (!response.ok) console.warn('[relay:marks] fulfill failed', response.status, ids);
+      else console.log('[relay:marks] fulfilled', ids);
+    })
+    .catch((error) => console.warn('[relay:marks] fulfill failed', error));
+}
 
 // Events from a frame in stream order; [] for frames without events or
 // with an unexpected shape.

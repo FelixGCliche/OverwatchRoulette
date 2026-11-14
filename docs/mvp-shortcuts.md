@@ -7,8 +7,9 @@ This file lists only the shortcuts that live in this repository. The full
 register (MVP-01 to MVP-14) lives in the `donordrive-obs-dashboard` repository,
 in `docs/mvp-shortcuts.md`, and uses the same IDs.
 
-The connection URL from the dock's setup page is only the channel URL
-(`wss://<origin>/api/channel/<key>`). Which incentive counts as a hero request
+The connection URL from the dock's setup page is the channel URL plus the
+participant (`wss://<origin>/api/channel/<key>?host=<extralife|try>&pid=<id>`).
+Which incentive counts as a hero request
 is an OverwatchRoulette setting: the "Hero request incentive ID" field on the
 dashboard, saved in localStorage as `owr:v1:hero-incentive` and shared by every
 page of the origin. With no ID saved, no hero requests are queued.
@@ -19,6 +20,17 @@ Its redemptions are queued as `kind: 'uncomplete'` items and wait in the
 pending list, where the hero can be changed like any request. Accepting one
 clears `isCompleted` right away and drops it, so it never joins the queue. With no ID saved, none are queued.
 If both fields hold the same ID, it counts as a hero request.
+
+The relay only replays its last 50 events, and redemptions are published only
+while a dock is open, so some never arrive over the WebSocket. The dashboard's
+"Refresh requests" button calls `GET <origin>/api/channel/<key>/pending` with
+the URL's `host` and `pid` and the saved incentive IDs, and queues every
+redemption the dock hasn't marked fulfilled as pending. Older relay URLs
+without `host`/`pid` must be copied again from the setup page. Accepting,
+un-completing or declining a request on the dashboard (not a test one) marks
+its donation fulfilled in the dock (`POST <origin>/api/channel/<key>/marks`),
+so it doesn't come back on the next refresh. Marking is fire-and-forget: a
+failed call is only logged, and the request can come back on a refresh.
 
 ## Code markers
 
