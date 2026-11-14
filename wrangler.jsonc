@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "overwatch-roulette",
+  "compatibility_date": "2026-11-14",
+  // Static site: the repo root is served as-is (see .assetsignore)
+  "assets": {
+    "directory": "./"
+  },
+  "previews": {}
+}
