@@ -27,7 +27,7 @@ body.wheel-spinning main {
   }
 }
 
-/* Grid on top, then the current-hero banner with the request queue under it. */
+/* Grid on top, then the current-hero banner, then the request queue. */
 main {
   display: flex;
   flex-direction: column;
@@ -35,16 +35,4 @@ main {
   align-items: flex-end;
   width: 100%;
   height: 100%;
-}
-
-/* The current-hero banner and the queue stack at the width of the wider one,
-   so their edges line up. */
-.hero-stack {
-  display: flex;
-  flex-direction: column;
-  gap: calc(32 * var(--px));
-}
-
-.hero-stack .hero-queue {
-  width: auto;
 }
